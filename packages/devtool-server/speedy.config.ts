@@ -6,9 +6,13 @@ export default defineConfig({
   output: {
     path: "dist",
     filename: "index",
+    format:"cjs",
   },
   input: {
     index: "src/index.ts",
+  },
+  define: {
+    // navigator: JSON.stringify(undefined),
   },
   external: ["@speedy-js/devtool-ui"],
   target: "es6",

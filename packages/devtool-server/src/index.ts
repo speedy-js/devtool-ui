@@ -1,13 +1,13 @@
-import path from "path";
 import type { SpeedyBundler } from "@speedy-js/speedy-core";
 import type { Metafile, SpeedyPlugin } from "@speedy-js/speedy-types";
 import { uiPath } from "@speedy-js/devtool-ui";
 import koa from "koa";
 import mount from "koa-mount";
 import serve from "koa-static";
+import path from "path";
 import { ModuleInfo, TransformInfo } from "@speedy-js/devtool-type";
 //@ts-ignore
-import findPort from "find-port";
+import detect from "detect-port";
 
 export interface ISpeedyDevtoolConfig {
   // weather to enable devtool
@@ -51,7 +51,8 @@ function resolveModuleGraphToAbsolutePath(
 
   return { inputs: inputRes, outputs: metaFile.outputs };
 }
-
+let serveStart = false;
+const dummyLoadPluginName = "speedy-devtool";
 export function SpeedyDevtoolPlugin(
   config: ISpeedyDevtoolConfig | boolean | undefined
 ): SpeedyPlugin {
@@ -88,7 +89,7 @@ export function SpeedyDevtoolPlugin(
       }
       let idMap: Record<string, string> = {};
       let moduleGraph: Metafile | undefined;
-
+      let pluginSet = new Set<string>();
       function clear() {
         console.log("clear", new Error().stack);
         transformMap = {};
@@ -96,102 +97,82 @@ export function SpeedyDevtoolPlugin(
         moduleGraph = { inputs: {}, outputs: {} };
       }
 
-      bundler.hooks.startCompilation.tapPromise(
-        "speedy-devtool",
-        async () => {}
-      );
+      // bundler.hooks.startCompilation.tapPromise(
+      //   "speedy-devtool",
+      //   async () => {}
+      // );
 
-      bundler.hooks.load.intercept({
-        register(args) {
-          const name = args.name;
-          const oldfn = args.fn;
-          type F = Parameters<typeof bundler.hooks.load.tap>[1];
-          args.fn = async (...args: Parameters<F>) => {
-            const id = args[0].path;
-            const start = Date.now();
-            const _result = await oldfn.apply(bundler, args);
-            const end = Date.now();
-            if (_result) {
-              putInfoTransformMap(id, {
-                name: name,
-                result: _result.contents,
-                start,
-                end,
-              });
+      const hookList = [
+        "resolve",
+        "load",
+        "compilation",
+        "transform",
+        "transformHTML",
+      ] as const;
+      for (const k of hookList) {
+        bundler.hooks[k].intercept({
+          register(args) {
+            pluginSet.add(args.name);
+            const name = args.name;
+            const oldfn = args.fn;
+            type F = Parameters<typeof bundler.hooks.load.tap>[1];
+            if (args.type === "sync") {
+              args.fn = (...args: Parameters<F>) => {
+                const id = args[0]?.path;
+                const start = Date.now();
+                const _result = oldfn.apply(bundler, args);
+                const end = Date.now();
+                if (_result && id) {
+                  putInfoTransformMap(id, {
+                    name: name,
+                    result: _result.contents ?? _result.code ?? _result.path,
+                    start,
+                    end,
+                  });
+                }
+
+                return _result;
+              };
+            } else {
+              args.fn = async (...args: Parameters<F>) => {
+                const id = args[0]?.path;
+                const start = Date.now();
+                const _result = await oldfn.apply(bundler, args);
+                const end = Date.now();
+                if (_result && id) {
+                  putInfoTransformMap(id, {
+                    name: name,
+                    result: _result.contents ?? _result.code ?? _result.path,
+                    start,
+                    end,
+                  });
+                }
+                return _result;
+              };
             }
+            return args;
+          },
+        });
+      }
 
-            return _result;
-          };
-          return args;
-        },
-      });
-
-      bundler.hooks.transform.intercept({
-        register(args) {
-          const name = args.name;
-          const oldfn = args.fn;
-          type F = Parameters<typeof bundler.hooks.transform.tap>[1];
-          args.fn = async (...args: Parameters<F>) => {
-            const id = args[0].path;
-            const start = Date.now();
-            const _result: Parameters<F>[0] = await oldfn.apply(bundler, args);
-            const end = Date.now();
-            if (_result) {
-              putInfoTransformMap(id, {
-                name: name,
-                result: _result.code,
-                start,
-                end,
-              });
-            }
-            return _result;
-          };
-          return args;
-        },
-      });
-
-      // bundler.hooks.processAsset.intercept({
+      // bundler.hooks.resolve.intercept({
       //   register(args) {
-      //     const name = args.name;
+      //     pluginSet.add(args.name);
       //     const oldfn = args.fn;
-      //     type F = Parameters<typeof bundler.hooks.processAsset.tap>[1];
+      //     type F = Parameters<typeof bundler.hooks.resolve.tap>[1];
       //     args.fn = async (...args: Parameters<F>) => {
-      //       const asset = args[0];
-      //       const filePath = asset.fileName;
-      //       const start = Date.now();
+      //       const resolve = args[0];
+
       //       const _result = await oldfn.apply(bundler, args);
-      //       const end = Date.now();
       //       if (_result) {
-      //         putInfoTransformMap(filePath, {
-      //           name: name,
-      //           result: _result.content,
-      //           start,
-      //           end,
-      //         });
+      //         idMap[resolve.path] = _result.path;
       //       }
+
       //       return _result;
       //     };
       //     return args;
       //   },
       // });
-
-      bundler.hooks.resolve.intercept({
-        register(args) {
-          const oldfn = args.fn;
-          type F = Parameters<typeof bundler.hooks.resolve.tap>[1];
-          args.fn = async (...args: Parameters<F>) => {
-            const resolve = args[0];
-
-            const _result = await oldfn.apply(bundler, args);
-            if (_result) {
-              idMap[resolve.path] = _result.path;
-            }
-
-            return _result;
-          };
-          return args;
-        },
-      });
 
       bundler.hooks.processManifest.tapPromise(
         "speedy-devtool",
@@ -202,8 +183,44 @@ export function SpeedyDevtoolPlugin(
           );
         }
       );
+      interface PluginMetricInfo {
+        name: string;
+        totalTime: number;
+        invokeCount: number;
+        enforce?: string;
+      }
+      function getPluginMetics() {
+        const map: Record<string, PluginMetricInfo> = {};
 
+        pluginSet.forEach((i) => {
+          map[i] = {
+            name: i,
+            enforce: i,
+            invokeCount: 0,
+            totalTime: 0,
+          };
+        });
+
+        Object.values(transformMap).forEach((transformInfos) => {
+          transformInfos.forEach(({ name, start, end }) => {
+            if (name === dummyLoadPluginName) return;
+            if (!map[name]) map[name] = { name, totalTime: 0, invokeCount: 0 };
+            map[name].totalTime += end - start;
+            map[name].invokeCount += 1;
+          });
+        });
+
+        const metrics = Object.values(map)
+          .filter(Boolean)
+          .sort((a, b) => a.name.localeCompare(b.name))
+          .sort((a, b) => b.invokeCount - a.invokeCount)
+          .sort((a, b) => b.totalTime - a.totalTime);
+        // console.log("metrics", metrics);
+        return metrics;
+      }
       bundler.hooks.initialize.tapPromise("speedy-devtool", async () => {
+        if (serveStart) return;
+        serveStart = true;
         const app = new koa({});
         app.use(mount("/__inspect", serve(uiPath)));
         app.use(
@@ -247,15 +264,17 @@ export function SpeedyDevtoolPlugin(
             } else if (pathname === "/clear") {
               // clear();
               context.body = {};
+            } else if (pathname === "/pluginMetics") {
+              const data = getPluginMetics();
+              context.body = { data };
             } else {
               next();
             }
           })
         );
-        findPort("127.0.0.1", 8000, 9000, function (ports: string[]) {
-          const port = ports[0];
-          app.listen(port, (...args) => {
-            console.log("listened to port " + port);
+        detect((<any>config).port ?? 4399).then((p: number) => {
+          app.listen(p, () => {
+            console.log(`inspect url: http://localhost:${p}/__inspect`);
           });
         });
       });

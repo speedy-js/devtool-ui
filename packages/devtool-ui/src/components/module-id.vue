@@ -1,13 +1,10 @@
 <script setup lang="ts">
-import { computed } from "vue";
-import { root, list } from "../logic";
-import Badge from "./badge.vue";
+import { computed } from 'vue'
+import { list, root } from '../logic'
+import Badge from './badge.vue'
+const props = defineProps<{ id?: string }>()
 
-const props = defineProps<{ id?: string }>();
-
-const isVirtual = computed(
-  () => list.data?.modules.find((i) => i.id === props.id)?.virtual
-);
+const isVirtual = computed(() => list.data?.modules.find(i => i.id === props.id)?.virtual)
 </script>
 
 <template>

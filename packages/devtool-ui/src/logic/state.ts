@@ -28,3 +28,13 @@ export function refetch() {
   onRefetch.trigger();
   return list.execute();
 }
+
+export const pluginMetics = reactive(
+  useFetch("/__inspect_api/pluginMetics")
+    .get()
+    .json<any>()
+);
+export function refetchPluginMetics() {
+  // onRefetch.trigger();
+  // return pluginMetics.execute();
+}
