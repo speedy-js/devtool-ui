@@ -1,0 +1,23 @@
+{
+  "compilerOptions": {
+    "target": "ES6",
+    "module": "CommonJS",
+    "lib": ["ESNext", "DOM", "es2020"],
+    "downlevelIteration": true,
+    "esModuleInterop": true,
+    "noEmitOnError": false,
+    "forceConsistentCasingInFileNames": true,
+    "strict": true,
+    "outDir": "lib",
+    "skipLibCheck": true,
+    "moduleResolution": "node",
+    "resolveJsonModule": true,
+    "typeRoots": [
+      "./node_modules/@types",
+      "./../../node_modules/@types",
+      "./@types",
+      "global.d.ts"
+    ]
+  },
+  "include": ["src", "@types", "global.d.ts"]
+}

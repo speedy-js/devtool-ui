@@ -1,0 +1,44 @@
+{
+  "name": "@speedy-js/devtool-ui",
+  "version": "1.0.0",
+  "description": "devtool ui for speedy",
+  "main": "index.js",
+  "types": "index.d.ts",
+  "scripts": {
+    "dev": "/Users/zoolsher/Projects/speedystack/packages/speedy-core/cli.js dev",
+    "build": "/Users/zoolsher/Projects/speedystack/packages/speedy-core/cli.js build"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/speedy-js/devtool-ui.git"
+  },
+  "keywords": [
+    "devtool",
+    "speedy"
+  ],
+  "author": "zoolsher",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/speedy-js/devtool-ui/issues"
+  },
+  "homepage": "https://github.com/speedy-js/devtool-ui#readme",
+  "devDependencies": {
+    "@iconify/json": "1.1.403",
+    "@vueuse/router": "6.4.1",
+    "unplugin-icons": "0.11.3",
+    "windicss": "3.1.7",
+    "rollup-plugin-windicss": "1.6.1",
+    "vis-data": "7.1.2",
+    "fuse.js": "6.5.3",
+    "@vueuse/core": "7.5.1",
+    "@speedy-js/devtool-type": "1.0.0",
+    "@speedy-js/speedy-core": "0.8.1",
+    "rollup-plugin-vue": "6.0.0",
+    "@vue/compiler-sfc": "3.2.26",
+    "@speedy-js/unplugin": "0.8.1",
+    "vue": "3.2.26",
+    "vue-router": "4.0.11",
+    "vis-network": "9.1.0",
+    "monaco-editor": "0.31.1"
+  }
+}

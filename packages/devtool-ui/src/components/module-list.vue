@@ -1,0 +1,36 @@
+<script setup lang="ts">
+import { listMode, searchText } from "../logic";
+import { RouterLink } from "vue-router";
+import ModuleId from "./module-id.vue";
+
+defineProps<{
+  modules: any[];
+}>();
+</script>
+
+<template>
+  <div v-if="modules">
+    <div v-if="!modules.length" class="px-6 py-4 opacity-50 italic text-center">
+      <div v-if="searchText">No search result</div>
+      <div v-else>
+        No module recorded yet, vist
+        <a href="/" target="_blank">your app</a> first and then refresh this
+        page.
+      </div>
+    </div>
+    <RouterLink
+      v-for="m in modules"
+      :key="m.id"
+      class="block border-b border-main px-3 py-2 text-left font-mono text-sm"
+      :to="`/module?id=${encodeURIComponent(m.id)}`"
+    >
+      <ModuleId :id="m.id" />
+      <div v-if="listMode === 'detailed'" class="text-xs">
+        <template v-for="(i, idx) in m.plugins.slice(1)" :key="i">
+          <span v-if="idx !== 0">|</span>
+          <span class="mx-0.5 text-gray-400">{{ i }}</span>
+        </template>
+      </div>
+    </RouterLink>
+  </div>
+</template>

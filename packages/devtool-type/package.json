@@ -1,0 +1,24 @@
+{
+  "name": "@speedy-js/devtool-type",
+  "version": "1.0.0",
+  "description": "devtool ui for speedy",
+  "main": "index.js",
+  "types": "index.ts",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/speedy-js/devtool-ui.git"
+  },
+  "keywords": [
+    "devtool",
+    "speedy"
+  ],
+  "author": "zoolsher",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/speedy-js/devtool-ui/issues"
+  },
+  "homepage": "https://github.com/speedy-js/devtool-ui#readme"
+}
