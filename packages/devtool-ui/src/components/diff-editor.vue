@@ -1,22 +1,27 @@
 <script lang="ts" setup>
 import { onMounted, toRefs, onUpdated } from "vue";
 import * as monaco from "monaco-editor";
+import editorWorker from "monaco-editor/esm/vs/editor/editor.worker?worker";
+import jsonWorker from "monaco-editor/esm/vs/language/json/json.worker?worker";
+import cssWorker from "monaco-editor/esm/vs/language/css/css.worker?worker";
+import htmlWorker from "monaco-editor/esm/vs/language/html/html.worker?worker";
+import tsWorker from "monaco-editor/esm/vs/language/typescript/ts.worker?worker";
 
 self.MonacoEnvironment = {
-  getWorkerUrl: function (moduleId, label) {
+  getWorker(_, label) {
     if (label === "json") {
-      return "./vs/language/json/json.worker.js";
+      return new jsonWorker();
     }
     if (label === "css" || label === "scss" || label === "less") {
-      return "./vs/language/css/css.worker.js";
+      return new cssWorker();
     }
     if (label === "html" || label === "handlebars" || label === "razor") {
-      return "./vs/language/html/html.worker.js";
+      return new htmlWorker();
     }
     if (label === "typescript" || label === "javascript") {
-      return "./vs/language/typescript/ts.worker.js";
+      return new tsWorker();
     }
-    return "./vs/editor/editor.worker.js";
+    return new editorWorker();
   },
 };
 
@@ -44,7 +49,6 @@ onUpdated(() => {
     modified: modifiedModel,
   });
 });
-
 </script>
 <template>
   <div id="container"></div>

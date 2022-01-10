@@ -9,6 +9,8 @@ import Network from "~icons/carbon/network4";
 import Renew from "~icons/carbon/renew";
 import Moon from "~icons/carbon/moon";
 import Sun from "~icons/carbon/sun";
+import ModuleId from "./module-id.vue";
+import SearchBox from "./search-box.vue";
 import {
   isDark,
   toggleDark,
@@ -36,7 +38,7 @@ defineProps<{
       >
         <CarbonArrowLeft />
       </router-link>
-      <!-- <ModuleId v-if="id" :id="id" /> -->
+      <ModuleId v-if="id" :id="id" />
       <div class="flex-auto"></div>
       <button
         class="icon-btn text-lg"
@@ -55,7 +57,7 @@ defineProps<{
     </template>
     <template v-else>
       <span class="text-md">Speedy Inspect</span>
-      <!-- <SearchBox /> -->
+      <SearchBox />
       <div class="flex-auto"></div>
       <button class="icon-btn text-lg" title="View Mode" @click="toggleMode()">
         <CarbonListBoxes v-if="listMode === 'detailed'" />
