@@ -7,8 +7,9 @@ import cssWorker from "monaco-editor/esm/vs/language/css/css.worker?worker";
 import htmlWorker from "monaco-editor/esm/vs/language/html/html.worker?worker";
 import tsWorker from "monaco-editor/esm/vs/language/typescript/ts.worker?worker";
 
+//@ts-ignore
 self.MonacoEnvironment = {
-  getWorker(_, label) {
+  getWorker(_: unknown, label: string) {
     if (label === "json") {
       return new jsonWorker();
     }
@@ -27,13 +28,13 @@ self.MonacoEnvironment = {
 
 const props = defineProps<{ from: string; to: string }>();
 const { from, to } = toRefs(props);
-var diffEditor;
+let diffEditor: ReturnType<typeof monaco.editor.createDiffEditor>;
 onMounted(() => {
   var originalModel = monaco.editor.createModel(from.value, "text/plain");
   var modifiedModel = monaco.editor.createModel(to.value, "text/plain");
 
   diffEditor = monaco.editor.createDiffEditor(
-    document.getElementById("container")
+    document.getElementById("container")!
   );
   diffEditor.setModel({
     original: originalModel,
