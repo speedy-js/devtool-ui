@@ -9,6 +9,24 @@ import { ModuleInfo, TransformInfo } from "@speedy-js/devtool-type";
 //@ts-ignore
 import findPort from "find-port";
 
+import os from "os";
+import chalk from 'chalk';
+
+
+function getNetworkAddress() {
+  for (const [key, interfaces] of Object.entries(os.networkInterfaces())) {
+    if (!interfaces) {
+      continue;
+    }
+    for (const network of interfaces) {
+      const { address, family, internal } = network;
+      if (family === "IPv4" && !internal) {
+        return address;
+      }
+    }
+  }
+}
+
 export interface ISpeedyDevtoolConfig {
   // weather to enable devtool
   // default to false
@@ -90,16 +108,14 @@ export function SpeedyDevtoolPlugin(
       let moduleGraph: Metafile | undefined;
 
       function clear() {
-        console.log("clear", new Error().stack);
         transformMap = {};
         idMap = {};
         moduleGraph = { inputs: {}, outputs: {} };
       }
 
-      bundler.hooks.startCompilation.tapPromise(
-        "speedy-devtool",
-        async () => {}
-      );
+      bundler.hooks.startCompilation.tapPromise("speedy-devtool", async () => {
+        clear();
+      });
 
       bundler.hooks.load.intercept({
         register(args) {
@@ -150,31 +166,6 @@ export function SpeedyDevtoolPlugin(
         },
       });
 
-      // bundler.hooks.processAsset.intercept({
-      //   register(args) {
-      //     const name = args.name;
-      //     const oldfn = args.fn;
-      //     type F = Parameters<typeof bundler.hooks.processAsset.tap>[1];
-      //     args.fn = async (...args: Parameters<F>) => {
-      //       const asset = args[0];
-      //       const filePath = asset.fileName;
-      //       const start = Date.now();
-      //       const _result = await oldfn.apply(bundler, args);
-      //       const end = Date.now();
-      //       if (_result) {
-      //         putInfoTransformMap(filePath, {
-      //           name: name,
-      //           result: _result.content,
-      //           start,
-      //           end,
-      //         });
-      //       }
-      //       return _result;
-      //     };
-      //     return args;
-      //   },
-      // });
-
       bundler.hooks.resolve.intercept({
         register(args) {
           const oldfn = args.fn;
@@ -205,7 +196,7 @@ export function SpeedyDevtoolPlugin(
 
       bundler.hooks.initialize.tapPromise("speedy-devtool", async () => {
         const app = new koa({});
-        app.use(mount("/__inspect", serve(uiPath)));
+        app.use(mount("/", serve(uiPath)));
         app.use(
           mount("/__inspect_api", (context, next) => {
             const pathname = context.path;
@@ -253,9 +244,13 @@ export function SpeedyDevtoolPlugin(
           })
         );
         findPort("127.0.0.1", 8000, 9000, function (ports: string[]) {
-          const port = ports[0];
-          app.listen(port, (...args) => {
-            console.log("listened to port " + port);
+          const resolvedPort = ports[0];
+          app.listen(resolvedPort, (...args) => {
+            const ip = getNetworkAddress();
+            const localAddress = `http://${bundler.config.dev.host}:${resolvedPort}`;
+            const networkAddress = `http://${ip}:${resolvedPort}`;
+            const localMessage = `${chalk.bold(`- Local Address:   `)}${localAddress}`;
+            const networkMessage = `${chalk.bold(`- On Your Network: `)}${networkAddress}`;
           });
         });
       });

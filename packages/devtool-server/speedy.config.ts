@@ -10,7 +10,7 @@ export default defineConfig({
   input: {
     index: "src/index.ts",
   },
-  external: ["@speedy-js/devtool-ui"],
+  external: ["@speedy-js/devtool-ui", "chalk"],
   target: "es6",
   minify: false,
   plugins: [externalPlugin({ external: builtinModules })],
