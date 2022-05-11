@@ -26,7 +26,7 @@
     "@speedy-js/devtool-type": "1.0.0",
     "@iconify/json": "2.1.41",
     "@speedy-js/speedy-core": "0.11.2",
-    "@speedy-js/unplugin": "0.8.1",
+    "@speedy-js/unplugin": "0.11.2",
     "@types/codemirror": "^5.60.5",
     "@vue/compiler-sfc": "3.2.33",
     "@vueuse/core": "8.4.2",
