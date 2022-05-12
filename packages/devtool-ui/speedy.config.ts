@@ -14,7 +14,7 @@ const windi = WindiCSS({
 export default defineConfig({
   output: {
     path: "dist",
-    publicPath:"/__inspect/",
+    publicPath: "/__inspect/",
     filename: "index",
   },
   define: {

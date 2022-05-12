@@ -9,6 +9,8 @@ import Badge from "../components/badge.vue";
 import { useRoute } from "vue-router";
 import { useFetch } from "@vueuse/core";
 import DiffEditor from "../components/diff-editor.vue";
+import CarbonArrowLeft from '~icons/carbon/arrow-left'
+
 const route = useRoute();
 const id = computed(() => route?.query.id as string);
 
@@ -29,7 +31,7 @@ const currentIndex = computed(
 
 async function refetch() {
   const { id: resolved } = await fetch(
-    `/__inspect_api/resolve?id=${id.value}`
+    `/__inspect_api/resolve?id=${encodeURIComponent (id.value)}`
   ).then((r) => r.json());
   // if (resolved) {
   //   // // revaluate the module (if it's not initialized by the module graph)
@@ -56,7 +58,11 @@ const to = computed(
 </script>
 
 <template>
-  <NavBar :id="id" />
+  <NavBar :id="id" >
+      <router-link class="icon-btn !outline-none my-auto" to="/">
+      <CarbonArrowLeft />
+    </router-link>
+  </NavBar>
   <Container
     v-if="data && data.transforms"
     class="grid grid-cols-[300px,3fr] overflow-hidden"

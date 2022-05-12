@@ -51,13 +51,15 @@ function resolveModuleGraphToAbsolutePath(
 
   return { inputs: inputRes, outputs: metaFile.outputs };
 }
+
 let serveStart = false;
 const dummyLoadPluginName = "speedy-devtool";
+
 export function SpeedyDevtoolPlugin(
   config: ISpeedyDevtoolConfig | boolean | undefined
 ): SpeedyPlugin {
   return {
-    name: "speedy-devtool",
+    name: dummyLoadPluginName,
     apply(bundler: SpeedyBundler) {
       /**
        * check if devtool is enabled
@@ -87,6 +89,7 @@ export function SpeedyDevtoolPlugin(
         }
         transformMap[id].push(info);
       }
+
       let idMap: Record<string, string> = {};
       let moduleGraph: Metafile | undefined;
       let pluginSet = new Set<string>();
@@ -95,6 +98,17 @@ export function SpeedyDevtoolPlugin(
         transformMap = {};
         idMap = {};
         moduleGraph = { inputs: {}, outputs: {} };
+      }
+
+      function resolveId(id = ""): string {
+        console.log('id',id)
+        if (id.startsWith("./"))
+          id = path.resolve(bundler.config.root, id).replace(/\\/g, "/");
+        return resolveIdRec(id);
+      }
+
+      function resolveIdRec(id: string): string {
+        return idMap[id] ? resolveIdRec(idMap[id]) : id;
       }
 
       // bundler.hooks.startCompilation.tapPromise(
@@ -118,14 +132,23 @@ export function SpeedyDevtoolPlugin(
             type F = Parameters<typeof bundler.hooks.load.tap>[1];
             if (args.type === "sync") {
               args.fn = (...args: Parameters<F>) => {
+                // const id = args[0]?.path?.split("?")?.[0];
                 const id = args[0]?.path;
                 const start = Date.now();
                 const _result = oldfn.apply(bundler, args);
                 const end = Date.now();
+                if (_result?.path && id && _result?.path !== id) {
+                  idMap[_result.path] = id;
+                  // idMap[id] = _result.id;
+                }
                 if (_result && id) {
                   putInfoTransformMap(id, {
                     name: name,
-                    result: _result.contents ?? _result.code ?? _result.path,
+                    result:
+                      _result.contents ??
+                      _result.code ??
+                      _result.path ??
+                      "__EMPTY__",
                     start,
                     end,
                   });
@@ -135,14 +158,26 @@ export function SpeedyDevtoolPlugin(
               };
             } else {
               args.fn = async (...args: Parameters<F>) => {
+                // const id = args[0]?.path?.split("?")?.[0];
                 const id = args[0]?.path;
+
                 const start = Date.now();
                 const _result = await oldfn.apply(bundler, args);
                 const end = Date.now();
+
+                if (_result?.path && id && _result?.path !== id) {
+                  idMap[ _result.path] = id
+                  // idMap[id] = _result.id;
+                }
+
                 if (_result && id) {
                   putInfoTransformMap(id, {
                     name: name,
-                    result: _result.contents ?? _result.code ?? _result.path,
+                    result:
+                      _result.contents ??
+                      _result.code ??
+                      _result.path ??
+                      "__EMPTY__",
                     start,
                     end,
                   });
@@ -175,7 +210,7 @@ export function SpeedyDevtoolPlugin(
       // });
 
       bundler.hooks.processManifest.tapPromise(
-        "speedy-devtool",
+        dummyLoadPluginName,
         async (args) => {
           moduleGraph = resolveModuleGraphToAbsolutePath(
             bundler.config.root,
@@ -218,7 +253,8 @@ export function SpeedyDevtoolPlugin(
         // console.log("metrics", metrics);
         return metrics;
       }
-      bundler.hooks.initialize.tapPromise("speedy-devtool", async () => {
+
+      bundler.hooks.initialize.tapPromise(dummyLoadPluginName, async () => {
         if (serveStart) return;
         serveStart = true;
         const app = new koa({});
@@ -240,7 +276,7 @@ export function SpeedyDevtoolPlugin(
                   }
                   return {
                     deps,
-                    id,
+                    id: resolveId(id),
                     plugins,
                     virtual: false,
                   };
@@ -253,13 +289,13 @@ export function SpeedyDevtoolPlugin(
             } else if (pathname === "/module") {
               const id = context.query.id as string;
               context.body = {
-                resolvedId: id,
+                resolvedId: resolveId(id),
                 transforms: transformMap[id] || [],
               };
             } else if (pathname === "/resolve") {
               const id = context.query.id as string;
               context.body = {
-                id,
+                id: resolveId(id),
               };
             } else if (pathname === "/clear") {
               // clear();
