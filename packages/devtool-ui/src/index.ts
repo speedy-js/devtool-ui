@@ -8,6 +8,7 @@ import PluginsMetric from './pages/index/plugins-metric.vue'
 // import "virtual:windi-utilities.css";
 import "./styles/main.css";
 import "./styles/cm.css";
+
 const app = createApp(App as any);
 const router = createRouter({
   history: createWebHashHistory("/"),

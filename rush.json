@@ -381,8 +381,8 @@
    */
   "projects": [
     {
-      "packageName": "@speedy-js/devtool-server",
-      "projectFolder": "packages/devtool-server"
+      "packageName": "@speedy-js/devtool-plugin",
+      "projectFolder": "packages/devtool-plugin"
     },
     {
       "packageName": "@speedy-js/devtool-ui",

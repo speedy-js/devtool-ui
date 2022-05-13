@@ -29,7 +29,7 @@ defineProps<{
     >
       <ModuleId :id="m.id" />
       <div v-if="listMode === 'detailed'" class="text-xs opacity-50">
-        <template v-for="i, idx in m.plugins.slice(1)" :key="i">
+        <template v-for="i, idx in new Set(m.plugins.slice(1))" :key="i">
           <span v-if="idx !== 0" class="opacity-20">|</span>
           <span class="mx-0.5">
             <PluginName :name="i" :hide="true" />

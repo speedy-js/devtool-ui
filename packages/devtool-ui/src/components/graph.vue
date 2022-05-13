@@ -11,6 +11,7 @@ import { isDark } from '../logic'
 const props = defineProps<{
   modules?: ModuleInfo[]
 }>()
+console.log("props", props.modules);
 
 const container = ref<HTMLDivElement | null>()
 const router = useRouter()

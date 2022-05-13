@@ -3,6 +3,7 @@ import { computed, onMounted, KeepAlive,Suspense } from "vue";
 import Container from "../components/container.vue";
 import NavBar from "../components/navbar.vue";
 import Graph from "../components/graph.vue";
+import ModuleTree from "../components/module-tree.vue";
 import ModuleList from "../components/module-list.vue";
 import { useRoute, RouterView } from "vue-router";
 import { refetch, searchResults, listMode ,toggleMode} from "../logic";
@@ -11,6 +12,7 @@ import ListBoxes from "~icons/carbon/list-boxes";
 import List from "~icons/carbon/list";
 import Network from "~icons/carbon/network4";
 import Timer from "~icons/carbon/timer";
+import CarbonTree from "~icons/carbon/tree";
 import LogoGithub from "~icons/carbon/logo-github";
 const route = useRoute()
 const isRoot = computed(() => route.path === '/')
@@ -30,6 +32,7 @@ onMounted(() => {
     <button class="icon-btn text-lg" title="View Mode" @click="toggleMode()">
       <ListBoxes v-if="listMode === 'detailed'" />
       <List v-else-if="listMode === 'list'" />
+      <CarbonTree v-else-if="listMode === 'tree'" />
       <Network v-else />
     </button>
     <a
@@ -37,12 +40,13 @@ onMounted(() => {
       href="https://github.com/antfu/vite-plugin-inspect"
       target="_blank"
     >
-      <LogoGitHub />
+      <LogoGithub />
     </a>
   </NavBar>
   <Container class="overflow-auto">
     <KeepAlive>
       <Graph v-if="listMode === 'graph'" :modules="searchResults" />
+      <ModuleTree v-else-if="listMode === 'tree'"  :modules="searchResults" />
       <ModuleList v-else :modules="searchResults" />
     </KeepAlive>
   </Container>
