@@ -4,7 +4,7 @@ import vuePlugin from "rollup-plugin-vue";
 import WindiCSS from "rollup-plugin-windicss";
 import Icon from "unplugin-icons/rollup";
 import path from "path";
-import { SpeedyDevtoolPlugin } from "/Users/bytedance/Documents/infra/devtool-ui/packages/devtool-server/dist/index.js";
+import { SpeedyDevtoolPlugin } from "@speedy-js/devtool-server";
 
 const windi = WindiCSS({
   scan: {
@@ -28,7 +28,7 @@ export default defineConfig({
     unplugin(vuePlugin()),
     ...windi.map(unplugin),
     unplugin(Icon()),
-    // SpeedyDevtoolPlugin(true),
+    SpeedyDevtoolPlugin( process.env.NODE_ENV !== 'production'),
   ],
   html: { title: "speedy devtool" },
 });

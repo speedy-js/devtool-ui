@@ -30,7 +30,7 @@
     "koa-static": "5.0.0"
   },
   "devDependencies": {
-    "@speedy-js/devtool-type": "1.0.0",
+    "@speedy-js/devtool-type": "1.0.1",
     "@speedy-js/speedy-core": "0.11.2",
     "@speedy-js/speedy-plugin-external": "0.10.0",
     "@speedy-js/speedy-types": "0.11.2",

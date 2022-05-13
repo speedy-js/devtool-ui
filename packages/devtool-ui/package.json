@@ -23,7 +23,8 @@
   },
   "homepage": "https://github.com/speedy-js/devtool-ui#readme",
   "devDependencies": {
-    "@speedy-js/devtool-type": "1.0.0",
+    "@speedy-js/devtool-server": "1.0.4",
+    "@speedy-js/devtool-type": "1.0.1",
     "@iconify/json": "2.1.41",
     "@speedy-js/speedy-core": "0.11.2",
     "@speedy-js/unplugin": "0.8.1",
