@@ -18,7 +18,7 @@ export interface ISpeedyDevtoolConfig {
   // default to 4899 -> findport will auto detach one when confict
   port: number;
 }
-console.log('uiPath',uiPath)
+
 const VirtualPathProxyNameSpace = "VirtualPathProxyNamespace";
 function resolveModuleGraphToAbsolutePath(
   root: string,
@@ -142,13 +142,15 @@ export function SpeedyDevtoolPlugin(
                   // idMap[id] = _result.id;
                 }
                 if (_result && id) {
+                  const result = (
+                    _result.contents ??
+                    _result.code ??
+                    _result.path ??
+                    "__EMPTY__"
+                  ).toString();
                   putInfoTransformMap(id, {
                     name: name,
-                    result:
-                      _result.contents ??
-                      _result.code ??
-                      _result.path ??
-                      "__EMPTY__",
+                    result,
                     start,
                     end,
                   });
@@ -171,13 +173,15 @@ export function SpeedyDevtoolPlugin(
                 }
 
                 if (_result && id) {
+                  const result = (
+                    _result.contents ??
+                    _result.code ??
+                    _result.path ??
+                    "__EMPTY__"
+                  ).toString();
                   putInfoTransformMap(id, {
                     name: name,
-                    result:
-                      _result.contents ??
-                      _result.code ??
-                      _result.path ??
-                      "__EMPTY__",
+                    result,
                     start,
                     end,
                   });

@@ -13,6 +13,10 @@ const starts = [
   'rollup-plugin-',
   'rollup-',
   'unplugin-',
+  "speedy:",
+  "speedy-plugin-",
+  "pia:",
+  "pia-plugin-",
 ]
 
 const parts = computed(() => {
