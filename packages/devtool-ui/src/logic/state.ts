@@ -23,6 +23,7 @@ export const root = computed(() => list.data?.root || "");
 
 export function refetch() {
   onRefetch.trigger();
+  pluginMetics.execute();
   return list.execute();
 }
 

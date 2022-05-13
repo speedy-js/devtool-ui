@@ -1,8 +1,6 @@
 import type { SpeedyBundler } from "@speedy-js/speedy-core";
 import type { Metafile, SpeedyPlugin } from "@speedy-js/speedy-types";
-// import { uiPath } from "@speedy-js/devtool-ui";
-
-const uiPath = `/Users/bytedance/Documents/infra/devtool-ui/packages/devtool-ui/dist`
+import { uiPath } from "@speedy-js/devtool-ui";
 import koa from "koa";
 import mount from "koa-mount";
 import serve from "koa-static";
@@ -20,7 +18,7 @@ export interface ISpeedyDevtoolConfig {
   // default to 4899 -> findport will auto detach one when confict
   port: number;
 }
-
+console.log('uiPath',uiPath)
 const VirtualPathProxyNameSpace = "VirtualPathProxyNamespace";
 function resolveModuleGraphToAbsolutePath(
   root: string,
@@ -103,7 +101,7 @@ export function SpeedyDevtoolPlugin(
       }
 
       function resolveId(id = ""): string {
-        console.log('id',id)
+        // console.log('id',id)
         if (id.startsWith("./"))
           id = path.resolve(bundler.config.root, id).replace(/\\/g, "/");
         return resolveIdRec(id);
