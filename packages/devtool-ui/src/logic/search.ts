@@ -23,7 +23,11 @@ export const searchResults = computed(() => {
   const fuse = new Fuse(data, {
     shouldSort: true,
     keys: ["id", "plugins"],
+    ignoreLocation: true,
+    includeScore: true,
+    minMatchCharLength: searchText.value.length,
   });
 
-  return fuse.search(searchText.value).map((i) => i.item);
+  const r = fuse.search(searchText.value).sort((a, b) => a.score! - b.score!);
+  return r.map((i) => i.item);
 });

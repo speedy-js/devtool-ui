@@ -102,8 +102,8 @@ export function SpeedyDevtoolPlugin(
 
       function resolveId(id = ""): string {
         // console.log('id',id)
-        if (id.startsWith("./"))
-          id = path.resolve(bundler.config.root, id).replace(/\\/g, "/");
+        // if (id.startsWith("./"))
+        //   id = path.resolve(bundler.config.root, id).replace(/\\/g, "/");
         return resolveIdRec(id);
       }
 
@@ -139,7 +139,7 @@ export function SpeedyDevtoolPlugin(
                 const end = Date.now();
                 if (_result?.path && id && _result?.path !== id) {
                   // idMap[_result.path] = id;
-                  // idMap[id] = _result.id;
+                  idMap[id] = _result.path;
                 }
                 if (_result && id) {
                   const result = (
@@ -169,7 +169,7 @@ export function SpeedyDevtoolPlugin(
 
                 if (_result?.path && id && _result?.path !== id) {
                   // idMap[ _result.path] = id
-                  // idMap[id] = _result.id;
+                  idMap[id] = _result.path;
                 }
 
                 if (_result && id) {
@@ -294,7 +294,7 @@ export function SpeedyDevtoolPlugin(
               const id = context.query.id as string;
               context.body = {
                 resolvedId: resolveId(id),
-                transforms: transformMap[id] || [],
+                transforms: transformMap[id] ||  transformMap[resolveId(id)]  ||  [],
               };
             } else if (pathname === "/resolve") {
               const id = context.query.id as string;

@@ -10,7 +10,6 @@ const props = defineProps<{
 }>();
 const router = useRouter();
 
-console.log("props", root.value, props.modules);
 interface Tree {
   label: string;
   children?: Tree[];
@@ -18,10 +17,11 @@ interface Tree {
 
 function toTreeData(list: ModuleInfo[], root: string): Tree[] {
   const fileList = list
-    .filter((i) => i.id.startsWith("/"))
+    // @, ~, /@, : http://
+    // .filter((i) => i.id.startsWith("/"))
     .map((i) => ({
       ...i,
-      _p: i.id.replace(root, ""),
+      _p: i.id.replace(root, "").replace("//", "/"),
     }))
     .sort((a, b) => a._p.localeCompare(b._p));
   const data: Tree[] = [];
@@ -36,11 +36,14 @@ function toTreeData(list: ModuleInfo[], root: string): Tree[] {
       }
       curIndex++;
       father = curItem.children;
+      if (!Array.isArray(father)) {
+        return;
+      }
       curItem = father.find((i) => i.label === path[curIndex]);
     }
     const name = value.split("?")[0];
-    if (father && !father.find((i) => i.label === name)) {
-      father.push({ label: name, item: item });
+    if (Array.isArray(father) && !father.find((i) => i.label === name)) {
+      father.push({ label: name, children: [], item: item });
     }
   };
   for (const i of fileList) {
@@ -51,73 +54,15 @@ function toTreeData(list: ModuleInfo[], root: string): Tree[] {
   return data;
 }
 const treeData = computed(() => {
-  return toTreeData(props.modules ?? [], root.value);
+  const d = toTreeData(props.modules ?? [], root.value);
+  return d;
 });
 
-console.log("treeData", treeData);
 const handleNodeClick = (data: Tree) => {
-  if (!data.children) {
+  if (!data.children?.length > 0) {
     router.push(`/module?id=${encodeURIComponent(data.item.id)}`);
   }
 };
-
-const data: Tree[] = [
-  {
-    label: "Level one 1",
-    children: [
-      {
-        label: "Level two 1-1",
-        children: [
-          {
-            label: "Level three 1-1-1",
-          },
-        ],
-      },
-    ],
-  },
-  {
-    label: "Level one 2",
-    children: [
-      {
-        label: "Level two 2-1",
-        children: [
-          {
-            label: "Level three 2-1-1",
-          },
-        ],
-      },
-      {
-        label: "Level two 2-2",
-        children: [
-          {
-            label: "Level three 2-2-1",
-          },
-        ],
-      },
-    ],
-  },
-  {
-    label: "Level one 3",
-    children: [
-      {
-        label: "Level two 3-1",
-        children: [
-          {
-            label: "Level three 3-1-1",
-          },
-        ],
-      },
-      {
-        label: "Level two 3-2",
-        children: [
-          {
-            label: "Level three 3-2-1",
-          },
-        ],
-      },
-    ],
-  },
-];
 
 const defaultProps = {
   children: "children",
