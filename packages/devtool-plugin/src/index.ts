@@ -270,7 +270,7 @@ export function SpeedyDevtoolPlugin(
               const modules = Object.keys(transformMap)
                 .sort()
                 .map((id: string): ModuleInfo => {
-                  const plugins = transformMap[id]?.map((i) => i.name);
+                  const plugins = transformMap[resolveId(id)]?.map((i) => i.name);
                   const input = moduleGraph?.inputs[id];
                   let deps: string[] = [];
                   if (module) {
