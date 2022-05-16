@@ -23,7 +23,7 @@
     "url": "https://github.com/speedy-js/devtool-ui/issues"
   },
   "devDependencies": {
-    "typescript":"^4.6.0"
+    "typescript":"^4.6.4"
   },
   "homepage": "https://github.com/speedy-js/devtool-ui#readme"
 }
