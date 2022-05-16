@@ -4,7 +4,7 @@ import { ModuleInfo } from "@speedy-js/devtool-type";
 
 export const onRefetch = createEventHook<void>();
 export const enableDiff = useStorage("vite-inspect-diff", true);
-export const modes = ["detailed", "graph", "list", "tree"] as const;
+export const modes = ["detailed", "list", "tree", "graph"] as const;
 export type Modes = typeof modes[number];
 export const listMode = useStorage<Modes>("vite-inspect-mode", "detailed");
 export const lineWrapping = useStorage("vite-inspect-line-wrapping", false);

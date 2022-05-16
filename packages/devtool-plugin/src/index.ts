@@ -270,10 +270,13 @@ export function SpeedyDevtoolPlugin(
           mount("/__inspect_api", (context, next) => {
             const pathname = context.path;
             if (pathname === "/list") {
+              const s = new Set<string>();
               const modules = Object.keys(transformMap)
                 .sort()
                 .map((id: string): ModuleInfo => {
-                  const plugins = transformMap[resolveId(id)]?.map((i) => i.name);
+                  const plugins = transformMap[resolveId(id)]?.map(
+                    (i) => i.name
+                  );
                   const input = moduleGraph?.inputs[id];
                   let deps: string[] = [];
                   if (module) {
@@ -287,6 +290,11 @@ export function SpeedyDevtoolPlugin(
                     plugins,
                     virtual: false,
                   };
+                })
+                .filter((i) => {
+                  if (s.has(i.id)) return false;
+                  s.add(i.id);
+                  return true;
                 });
               context.body = {
                 graph: moduleGraph,
@@ -297,7 +305,8 @@ export function SpeedyDevtoolPlugin(
               const id = context.query.id as string;
               context.body = {
                 resolvedId: resolveId(id),
-                transforms: transformMap[id] ||  transformMap[resolveId(id)]  ||  [],
+                transforms:
+                  transformMap[id] || transformMap[resolveId(id)] || [],
               };
             } else if (pathname === "/resolve") {
               const id = context.query.id as string;
