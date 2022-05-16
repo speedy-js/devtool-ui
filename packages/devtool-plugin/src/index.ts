@@ -122,6 +122,9 @@ export function SpeedyDevtoolPlugin(
         "compilation",
         "transform",
         "transformHTML",
+        "startCompilation",
+        "endCompilation",
+        "watchChange",
       ] as const;
       for (const k of hookList) {
         bundler.hooks[k].intercept({

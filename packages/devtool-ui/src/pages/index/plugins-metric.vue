@@ -1,15 +1,17 @@
 <script setup lang="ts">
 import { onRefetch, refetchPluginMetics, pluginMetics } from "../../logic";
 // import { rpc } from '../../logic/rpc'
-import { computed, ref } from "vue";
+import { computed, ref, watchEffect } from "vue";
 import NavBar from "../../components/navbar.vue";
 import Container from "../../components/container.vue";
 import Badge from "../../components/badge.vue";
 import PluginName from "../../components/plugin-name.vue";
-import CarbonArrowLeft from '~icons/carbon/arrow-left'
-const data = pluginMetics?.data
-const plugins = computed(() => pluginMetics?.data?.data || []);
-console.log(plugins)
+import CarbonArrowLeft from "~icons/carbon/arrow-left";
+const data = pluginMetics?.data?.data || [];
+const plugins = computed(() => {
+  const p = pluginMetics?.data?.data || [];
+  return p;
+});
 function getLatencyColor(latency: number) {
   if (latency > 1000) return "text-red-400";
   if (latency > 500) return "text-orange-400";
@@ -18,7 +20,7 @@ function getLatencyColor(latency: number) {
 }
 
 onRefetch.on(async () => {
-//  await refetchPluginMetics();
+  //  await refetchPluginMetics();
 });
 </script>
 
