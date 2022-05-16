@@ -9,6 +9,7 @@ const props = defineProps<{
   modules?: ModuleInfo[];
 }>();
 const router = useRouter();
+import { isDark } from "../logic";
 
 interface Tree {
   label: string;
@@ -71,6 +72,7 @@ const defaultProps = {
 </script>
 <template>
   <el-tree
+    className="bg-white dark:bg-[#111] dark-font-white"
     :data="treeData"
     :props="defaultProps"
     @node-click="handleNodeClick"

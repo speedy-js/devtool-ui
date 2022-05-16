@@ -1,24 +1,24 @@
 <script setup lang="ts">
-import { computed, onMounted, KeepAlive,Suspense } from "vue";
+import { computed, onMounted, KeepAlive, Suspense } from "vue";
 import Container from "../components/container.vue";
 import NavBar from "../components/navbar.vue";
 import Graph from "../components/graph.vue";
 import ModuleTree from "../components/module-tree.vue";
 import ModuleList from "../components/module-list.vue";
 import { useRoute, RouterView } from "vue-router";
-import { refetch, searchResults, listMode ,toggleMode} from "../logic";
-import SearchBox from '../components/search-box.vue'
+import { refetch, searchResults, listMode, toggleMode } from "../logic";
+import SearchBox from "../components/search-box.vue";
 import ListBoxes from "~icons/carbon/list-boxes";
 import List from "~icons/carbon/list";
 import Network from "~icons/carbon/network4";
 import Timer from "~icons/carbon/timer";
 import CarbonTree from "~icons/carbon/tree";
 import LogoGithub from "~icons/carbon/logo-github";
-const route = useRoute()
-const isRoot = computed(() => route.path === '/')
+const route = useRoute();
+const isRoot = computed(() => route.path === "/");
 onMounted(() => {
-  refetch()
-})
+  refetch();
+});
 </script>
 
 <template>
@@ -27,7 +27,7 @@ onMounted(() => {
     <SearchBox />
     <div class="flex-auto" />
     <router-link class="icon-btn text-lg" to="/plugins-metric">
-      <Timer/>
+      <Timer />
     </router-link>
     <button class="icon-btn text-lg" title="View Mode" @click="toggleMode()">
       <ListBoxes v-if="listMode === 'detailed'" />
@@ -46,7 +46,7 @@ onMounted(() => {
   <Container class="overflow-auto">
     <KeepAlive>
       <Graph v-if="listMode === 'graph'" :modules="searchResults" />
-      <ModuleTree v-else-if="listMode === 'tree'"  :modules="searchResults" />
+      <ModuleTree v-else-if="listMode === 'tree'" :modules="searchResults" />
       <ModuleList v-else :modules="searchResults" />
     </KeepAlive>
   </Container>
