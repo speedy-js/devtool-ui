@@ -84,7 +84,7 @@ const to = computed(
   </NavBar>
   <Container
     v-if="data && data.transforms"
-    class="grid grid-cols-[300px_3fr] overflow-hidden"
+    class="grid grid-cols-[400px_3fr] overflow-hidden"
   >
     <div class="flex flex-col border-r border-main overflow-auto">
       <div
