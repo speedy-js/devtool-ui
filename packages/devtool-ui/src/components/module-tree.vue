@@ -18,15 +18,32 @@ interface Tree {
 
 function toTreeData(list: ModuleInfo[], root: string): Tree[] {
   const fileList = list
+    .filter((i) => !i.id.includes("//"))
     // @, ~, /@, : http://
     // .filter((i) => i.id.startsWith("/"))
     .map((i) => ({
       ...i,
-      _p: i.id.replace(root, "").replace("//", "/"),
+      _p: i.id.replace(root, ""),
     }))
+
     .sort((a, b) => a._p.localeCompare(b._p));
+  const urlList = list
+    .map((i) => {
+      if (i.id.includes("//")) {
+        try {
+          const { host } = new URL(i.id);
+          return { ...i, host };
+        } catch (_) {
+          return null;
+        }
+      }
+      return null;
+    })
+    .filter((i) => !!i)
+    .sort((a, b) => a!.id.localeCompare?.(b!.id));
+
   const data: Tree[] = [];
-  const addItem = (path: string[], value: string, item) => {
+  const addItem = (path: string[], value: string, item: any) => {
     let curIndex = 0;
     let father = data;
     let curItem = father.find((i) => i.label === path[curIndex]);
@@ -36,7 +53,7 @@ function toTreeData(list: ModuleInfo[], root: string): Tree[] {
         father.push(curItem);
       }
       curIndex++;
-      father = curItem.children;
+      father = curItem.children!;
       if (!Array.isArray(father)) {
         return;
       }
@@ -44,13 +61,27 @@ function toTreeData(list: ModuleInfo[], root: string): Tree[] {
     }
     const name = value.split("?")[0];
     if (Array.isArray(father) && !father.find((i) => i.label === name)) {
-      father.push({ label: name, children: [], item: item });
+      father.push({ label: name, children: [], item });
     }
   };
   for (const i of fileList) {
     const pathList = i._p.split("/");
     const name = pathList.pop();
     if (name) addItem(pathList.slice(1), name, i);
+  }
+
+  for (const i of urlList) {
+    const u = new URL(i.id);
+    const { host } = u;
+    let item = data.find((i) => i.label === host);
+    if (!item) {
+      item = {
+        label: host,
+        children: [],
+      };
+      data.push(item);
+    }
+    item?.children?.push({ label: i.id, item: i });
   }
   return data;
 }
@@ -60,8 +91,8 @@ const treeData = computed(() => {
 });
 
 const handleNodeClick = (data: Tree) => {
-  if (!data.children?.length > 0) {
-    router.push(`/module?id=${encodeURIComponent(data.item.id)}`);
+  if (!data.children?.length) {
+    router.push(`/module?id=${encodeURIComponent(data?.item?.id)}`);
   }
 };
 
