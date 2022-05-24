@@ -1,18 +1,18 @@
-import type { Remote } from 'comlink'
-import { wrap } from 'comlink'
-import type { Exports } from './diff.worker'
+// @ts-expect-error
+import Worker from "./diff.worker?worker";
+export const calucateDiffWithWorker = async (left: string, right: string) => {
+  const w = new Worker();
+  w.postMessage({
+    left,
+    right,
+  });
 
-let diffWorker: Remote<Exports> | undefined
+  return new Promise(r=>{
+    // @ts-expect-error
+    w.addEventListener("message", ({ data }) => {
+      w.terminate()
+      r(data)
+    });
+  })  
 
-export const calucateDiffWithWorker = async(left: string, right: string) => {
-  if (!diffWorker) {
-    diffWorker = wrap(
-      new Worker(new URL('./diff.worker.ts', import.meta.url), {
-        type: 'module',
-      }),
-    )
-  }
-
-  const result = await diffWorker.calucateDiff(left, right)
-  return result
-}
+};

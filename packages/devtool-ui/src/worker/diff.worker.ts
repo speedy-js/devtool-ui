@@ -1,4 +1,3 @@
-import { expose } from 'comlink'
 import { diff_match_patch as Diff } from 'diff-match-patch'
 
 const calucateDiff = (left: string, right: string) => {
@@ -8,10 +7,9 @@ const calucateDiff = (left: string, right: string) => {
   return changes
 }
 
-const exports = {
-  calucateDiff,
+
+self.onmessage = ({data})=>{
+  const {left,right} = data;
+  const c = calucateDiff(left,right)
+  self.postMessage(c);
 }
-
-export type Exports = typeof exports
-
-expose(exports)

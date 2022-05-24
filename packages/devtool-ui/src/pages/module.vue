@@ -16,7 +16,6 @@ import ModuleId from "../components/module-id.vue";
 import PluginName from "../components/plugin-name.vue";
 const route = useRoute();
 const id = computed(() => route?.query.id as string);
-
 const { data, execute } = useFetch(
   computed(() => `/__inspect_api/module?id=${encodeURIComponent(id.value)}`),
   { immediate: false }

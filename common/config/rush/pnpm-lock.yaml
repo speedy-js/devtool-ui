@@ -10,6 +10,7 @@ specifiers:
   '@speedy-js/speedy-types': 0.11.2
   '@speedy-js/unplugin': 0.8.1
   '@types/codemirror': ^5.60.5
+  '@types/diff-match-patch': ^1.0.32
   '@types/koa': 2.13.4
   '@types/koa-mount': 4.0.1
   '@types/koa-static': 4.0.2
@@ -30,6 +31,7 @@ specifiers:
   monaco-editor: 0.33.0
   rollup-plugin-vue: 6.0.0
   rollup-plugin-windicss: 1.8.4
+  typescript: ^4.6.4
   unplugin-element-plus: ^0.4.0
   unplugin-icons: 0.14.3
   vis-data: 7.1.4
@@ -48,6 +50,7 @@ dependencies:
   '@speedy-js/speedy-types': 0.11.2
   '@speedy-js/unplugin': 0.8.1
   '@types/codemirror': 5.60.5
+  '@types/diff-match-patch': 1.0.32
   '@types/koa': 2.13.4
   '@types/koa-mount': 4.0.1
   '@types/koa-static': 4.0.2
@@ -68,6 +71,7 @@ dependencies:
   monaco-editor: 0.33.0
   rollup-plugin-vue: 6.0.0_@vue+compiler-sfc@3.2.33
   rollup-plugin-windicss: 1.8.4
+  typescript: 4.6.4
   unplugin-element-plus: 0.4.0
   unplugin-icons: 0.14.3_@vue+compiler-sfc@3.2.33
   vis-data: 7.1.4
@@ -535,6 +539,10 @@ packages:
       '@types/express': 4.17.13
       '@types/keygrip': 1.0.2
       '@types/node': 17.0.32
+    dev: false
+
+  /@types/diff-match-patch/1.0.32:
+    resolution: {integrity: sha512-bPYT5ECFiblzsVzyURaNhljBH2Gh1t9LowgUwciMrNAhFewLkHT2H0Mto07Y4/3KCOGZHRQll3CTtQZ0X11D/A==}
     dev: false
 
   /@types/estree/0.0.51:
@@ -2254,7 +2262,7 @@ packages:
     dev: false
 
   file:projects/devtool-plugin.tgz:
-    resolution: {integrity: sha512-iIGoX+cq8mN+mGddAcEP5O3FDck0dJBw96mO3N+AQupBoa+dXkEPVMyItx4zp3s5Gvs+ZdmfyPbGp66Y1mON7Q==, tarball: file:projects/devtool-plugin.tgz}
+    resolution: {integrity: sha512-1hodYy8TJIzPnqUii/MWVj4y3K7ExPU1gyxRlhcvfFOiNY0g0f2pDvHsq/H4/OCc0BMbkADoecUblRxioxiDgQ==, tarball: file:projects/devtool-plugin.tgz}
     name: '@rush-temp/devtool-plugin'
     version: 0.0.0
     dependencies:
@@ -2275,7 +2283,7 @@ packages:
     dev: false
 
   file:projects/devtool-type.tgz:
-    resolution: {integrity: sha512-H81B1A2TDMuYwdlOzVp8S1VpJ5QURQL3Lh+o/QoqAEO4zSxPIm3WHOAFEzyZ82zW89nB5zKlB+QaJHGbsPQW1w==, tarball: file:projects/devtool-type.tgz}
+    resolution: {integrity: sha512-qTVb6FS7eA/x73Z5VHosC/lYr3gpBaqJeXIgM20ejbCneofBN6VTP28UH8ZUeMy6KrBwWJSMhxKH749ziAPKXQ==, tarball: file:projects/devtool-type.tgz}
     name: '@rush-temp/devtool-type'
     version: 0.0.0
     dependencies:
@@ -2283,7 +2291,7 @@ packages:
     dev: false
 
   file:projects/devtool-ui.tgz:
-    resolution: {integrity: sha512-N9Fn/RESlYfRHf5QeTNlc+8OPFbhmhwgcQuJ58venCbWROBWYYbRYbJV5cFNb7TNDbOQB0yGAkGrrpt7p8H2vg==, tarball: file:projects/devtool-ui.tgz}
+    resolution: {integrity: sha512-2ZOo8057grQ5Y/ZrsM7K9h0329OUUM0LuEKipTZVa0zFvpkXJydOv9vqC1pbp9/I65egAi8/KRxM+DY12bwq+A==, tarball: file:projects/devtool-ui.tgz}
     name: '@rush-temp/devtool-ui'
     version: 0.0.0
     dependencies:
@@ -2292,6 +2300,7 @@ packages:
       '@speedy-js/speedy-core': 0.11.2
       '@speedy-js/unplugin': 0.8.1
       '@types/codemirror': 5.60.5
+      '@types/diff-match-patch': 1.0.32
       '@vue/compiler-sfc': 3.2.33
       '@vueuse/core': 8.5.0_vue@3.2.33
       '@vueuse/router': 8.5.0_vue-router@4.0.15+vue@3.2.33

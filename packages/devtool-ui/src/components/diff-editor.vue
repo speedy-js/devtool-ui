@@ -3,7 +3,7 @@ import { nextTick, onMounted, ref, toRefs, watchEffect } from "vue";
 import { useCodeMirror } from "../logic/codemirror";
 import { guessMode } from "../logic/utils";
 import { enableDiff, lineWrapping } from "../logic/state";
-// import { calucateDiffWithWorker } from '../worker/diff'
+import { calucateDiffWithWorker } from "../worker/diff";
 
 const props = defineProps<{ from: string; to: string }>();
 const { from, to } = toRefs(props);
@@ -34,7 +34,6 @@ onMounted(() => {
   watchEffect(async () => {
     const l = from.value;
     const r = to.value;
-    console.log(22222222222, { from: from.value, to: to.value });
     const showDiff = enableDiff.value;
 
     cm1.setOption("mode", guessMode(l));
@@ -55,14 +54,16 @@ onMounted(() => {
       .fill(null!)
       .map((_, i) => cm2.removeLineClass(i, "background", "diff-added"));
 
-    if (showDiff) {
-      // const changes = await calucateDiffWithWorker(l, r)
-      const changes: any[] = [];
+    const isLarge = l.length>4000 || r.length>4000;
+
+    if (showDiff && l.length && r.length && !isLarge) {
+      const changes = await calucateDiffWithWorker(l, r);
 
       const addedLines = new Set();
       const removedLines = new Set();
       let indexL = 0;
       let indexR = 0;
+      // @ts-expect-error
       changes.forEach(([type, change]) => {
         if (type === 1) {
           const start = cm2.posFromIndex(indexR);
