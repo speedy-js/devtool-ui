@@ -117,6 +117,7 @@ export function SpeedyDevtoolPlugin(
       // );
 
       const hookList = [
+        "initialize",
         "resolve",
         "load",
         "compilation",
@@ -126,8 +127,19 @@ export function SpeedyDevtoolPlugin(
         "endCompilation",
         "watchChange",
       ] as const;
-      for (const k of hookList) {
-        bundler.hooks[k].intercept({
+
+      let prevConfig = JSON.stringify(bundler.config, null, 2);
+      putInfoTransformMap("speedy:config", {
+        name: "raw",
+        result: prevConfig,
+        start: 0,
+        end: 0,
+        hook: "",
+      });
+
+      for (const hook of hookList) {
+        bundler.hooks[hook].intercept({
+          // @ts-expect-error
           register(args) {
             pluginSet.add(args.name);
             const name = args.name;
@@ -138,7 +150,10 @@ export function SpeedyDevtoolPlugin(
                 // const id = args[0]?.path?.split("?")?.[0];
                 const id = args[0]?.path;
                 const start = Date.now();
+                const oldConfig = JSON.stringify(bundler.config, null, 2);
                 const _result = oldfn.apply(bundler, args);
+                const newConfig = JSON.stringify(bundler.config, null, 2);
+
                 const end = Date.now();
                 if (_result?.path && id && _result?.path !== id) {
                   // idMap[_result.path] = id;
@@ -156,7 +171,18 @@ export function SpeedyDevtoolPlugin(
                     result,
                     start,
                     end,
+                    hook,
                   });
+                  if (newConfig !== oldConfig && newConfig !== prevConfig) {
+                    prevConfig = newConfig;
+                    putInfoTransformMap("speedy:config", {
+                      name: name,
+                      result: prevConfig,
+                      start,
+                      end,
+                      hook,
+                    });
+                  }
                 }
 
                 return _result;
@@ -167,7 +193,9 @@ export function SpeedyDevtoolPlugin(
                 const id = args[0]?.path;
 
                 const start = Date.now();
+                const oldConfig = JSON.stringify(bundler.config, null, 2);
                 const _result = await oldfn.apply(bundler, args);
+                const newConfig = JSON.stringify(bundler.config, null, 2);
                 const end = Date.now();
 
                 if (_result?.path && id && _result?.path !== id) {
@@ -187,7 +215,18 @@ export function SpeedyDevtoolPlugin(
                     result,
                     start,
                     end,
+                    hook,
                   });
+                  if (newConfig !== oldConfig && newConfig !== prevConfig) {
+                    prevConfig = newConfig;
+                    putInfoTransformMap("speedy:config", {
+                      name: name,
+                      result: prevConfig,
+                      start,
+                      end,
+                      hook,
+                    });
+                  }
                 }
                 return _result;
               };

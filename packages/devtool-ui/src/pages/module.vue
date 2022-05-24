@@ -84,7 +84,7 @@ const to = computed(
   </NavBar>
   <Container
     v-if="data && data.transforms"
-    class="grid grid-cols-[400px_3fr] overflow-hidden"
+    class="grid grid-cols-[500px_3fr] overflow-hidden"
   >
     <div class="flex flex-col border-r border-main overflow-auto">
       <div
@@ -106,13 +106,18 @@ const to = computed(
           }}</span>
           <Badge
             v-if="tr.result === data.transforms[idx - 1]?.result"
-            class="bg-orange-400/10 text-orange-400"
+            class="bg-gray-400/10 text-gray-400"
             v-text="'no change'"
           />
           <Badge
             v-if="idx === 0"
             class="bg-light-blue-400/10 text-light-blue-400"
             v-text="'load'"
+          />
+          <Badge
+            v-if="tr.hook"
+            class="bg-orange-400/10 text-orange-400"
+            v-text="tr.hook"
           />
         </button>
       </template>
