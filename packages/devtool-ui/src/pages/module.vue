@@ -115,7 +115,11 @@ const to = computed(
           />
           <Badge
             v-if="tr.hook"
-            class="bg-orange-400/10 text-orange-400"
+            :class="
+              tr.result === data.transforms[idx - 1]?.result
+                ? 'bg-gray-400/10 text-gray-400'
+                : 'bg-orange-400/10 text-orange-400'
+            "
             v-text="tr.hook"
           />
         </button>
