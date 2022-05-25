@@ -148,24 +148,28 @@ export function SpeedyDevtoolPlugin(
             if (args.type === "sync") {
               args.fn = (...args: Parameters<F>) => {
                 // const id = args[0]?.path?.split("?")?.[0];
-                const id = args[0]?.path;
+                const arg = args[0]
+                const id = arg?.path;
                 const start = Date.now();
                 const oldConfig = JSON.stringify(bundler.config, null, 2);
                 const _result = oldfn.apply(bundler, args);
                 const newConfig = JSON.stringify(bundler.config, null, 2);
 
                 const end = Date.now();
+                // @ts-ignore
+                // const input = arg?.content ?? arg?.code ?? arg?.path ?? "" ;
+                const input = arg?.content ?? arg?.code ?? "" ;
                 if (_result?.path && id && _result?.path !== id) {
                   // idMap[_result.path] = id;
                   idMap[id] = _result.path;
                 }
-                if (_result && id) {
-                  const result = (
-                    _result.contents ??
-                    _result.code ??
-                    _result.path ??
-                    "__EMPTY__"
-                  ).toString();
+
+                const result = (
+                  _result?.contents ??
+                  _result?.code ??
+                  _result?.path ?? ""
+                ).toString();
+                if (_result && id && input !== result) {
                   putInfoTransformMap(id, {
                     name: name,
                     result,
@@ -191,6 +195,7 @@ export function SpeedyDevtoolPlugin(
               args.fn = async (...args: Parameters<F>) => {
                 // const id = args[0]?.path?.split("?")?.[0];
                 const id = args[0]?.path;
+                const arg = args[0]
 
                 const start = Date.now();
                 const oldConfig = JSON.stringify(bundler.config, null, 2);
@@ -202,14 +207,14 @@ export function SpeedyDevtoolPlugin(
                   // idMap[ _result.path] = id
                   idMap[id] = _result.path;
                 }
-
-                if (_result && id) {
-                  const result = (
-                    _result.contents ??
-                    _result.code ??
-                    _result.path ??
-                    "__EMPTY__"
-                  ).toString();
+                //@ts-ignore
+                const input = arg?.content ?? arg?.code ?? "" ;
+                const result = (
+                  _result?.contents ??
+                  _result?.code ??
+                  _result?.path ?? ""
+                ).toString();
+                if (_result && id && input !== result) {
                   putInfoTransformMap(id, {
                     name: name,
                     result,

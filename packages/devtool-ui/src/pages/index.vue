@@ -56,7 +56,7 @@ onMounted(() => {
   >
     <router-link class="min-w-70px h-full flex-auto" to="/" />
     <div
-      class="bg-white dark:bg-[#111] border-main border-l h-full overflow-hidden shadow-lg transition-transform transform duration-300"
+      class="bg-white dark:bg-[#111] border-main border-l h-full overflow-hidden shadow-lg transition-transform transform duration-300 w-4/5"
       :class="isRoot ? 'translate-x-1/2' : 'translate-x-0'"
     >
       <Suspense>
