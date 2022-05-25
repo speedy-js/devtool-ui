@@ -69,6 +69,7 @@ onMounted(() => {
       size: 16,
     },
     physics: {
+      enabled: (data.value?.nodes?.length ?? 0) < 500,
       repulsion: {
         centralGravity: 0.7,
         springLength: 100,
@@ -78,7 +79,6 @@ onMounted(() => {
       solver: "repulsion",
       timestep: 0.35,
       stabilization: {
-        enabled: true,
         iterations: 200,
       },
     },

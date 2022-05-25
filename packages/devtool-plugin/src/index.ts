@@ -148,7 +148,7 @@ export function SpeedyDevtoolPlugin(
             if (args.type === "sync") {
               args.fn = (...args: Parameters<F>) => {
                 // const id = args[0]?.path?.split("?")?.[0];
-                const arg = args[0]
+                const arg = args[0];
                 const id = arg?.path;
                 const start = Date.now();
                 const oldConfig = JSON.stringify(bundler.config, null, 2);
@@ -158,7 +158,6 @@ export function SpeedyDevtoolPlugin(
                 const end = Date.now();
                 // @ts-ignore
                 // const input = arg?.content ?? arg?.code ?? arg?.path ?? "" ;
-                const input = arg?.content ?? arg?.code ?? "" ;
                 if (_result?.path && id && _result?.path !== id) {
                   // idMap[_result.path] = id;
                   idMap[id] = _result.path;
@@ -167,9 +166,10 @@ export function SpeedyDevtoolPlugin(
                 const result = (
                   _result?.contents ??
                   _result?.code ??
-                  _result?.path ?? ""
+                  _result?.path ??
+                  ""
                 ).toString();
-                if (_result && id && input !== result) {
+                if (_result && id) {
                   putInfoTransformMap(id, {
                     name: name,
                     result,
@@ -195,7 +195,6 @@ export function SpeedyDevtoolPlugin(
               args.fn = async (...args: Parameters<F>) => {
                 // const id = args[0]?.path?.split("?")?.[0];
                 const id = args[0]?.path;
-                const arg = args[0]
 
                 const start = Date.now();
                 const oldConfig = JSON.stringify(bundler.config, null, 2);
@@ -208,13 +207,13 @@ export function SpeedyDevtoolPlugin(
                   idMap[id] = _result.path;
                 }
                 //@ts-ignore
-                const input = arg?.content ?? arg?.code ?? "" ;
                 const result = (
                   _result?.contents ??
                   _result?.code ??
-                  _result?.path ?? ""
+                  _result?.path ??
+                  ""
                 ).toString();
-                if (_result && id && input !== result) {
+                if (_result && id) {
                   putInfoTransformMap(id, {
                     name: name,
                     result,
