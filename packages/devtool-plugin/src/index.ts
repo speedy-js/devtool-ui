@@ -120,12 +120,12 @@ export function SpeedyDevtoolPlugin(
         "initialize",
         "resolve",
         "load",
+        "environment",
         "compilation",
         "transform",
         "transformHTML",
         "startCompilation",
         "endCompilation",
-        "watchChange",
       ] as const;
 
       let prevConfig = JSON.stringify(bundler.config, null, 2);
@@ -191,7 +191,7 @@ export function SpeedyDevtoolPlugin(
 
                 return _result;
               };
-            } else {
+            } else if (args.type === "promise") {
               args.fn = async (...args: Parameters<F>) => {
                 // const id = args[0]?.path?.split("?")?.[0];
                 const id = args[0]?.path;
