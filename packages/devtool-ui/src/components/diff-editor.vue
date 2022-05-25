@@ -34,14 +34,6 @@ onMounted(() => {
   watchEffect(async () => {
     const l = from.value;
     const r = to.value;
-    cm1.display.cursorDiv.closest(".CodeMirror.cm-s-vars").style.display =
-      l.length > 0 ? "" : "none";
-    cm2.display.cursorDiv.closest(".CodeMirror.cm-s-vars").style.display =
-      r.length > 0 ? "" : "none";
-    console.log(
-      "cm2.display.cursorDiv.style.display",
-      cm2.display.cursorDiv.style.display
-    );
     const showDiff = enableDiff.value;
 
     cm1.setOption("mode", guessMode(l));
@@ -62,7 +54,7 @@ onMounted(() => {
       .fill(null!)
       .map((_, i) => cm2.removeLineClass(i, "background", "diff-added"));
 
-    const isLarge = l.length > 4000 || r.length > 4000;
+    const isLarge = l.split("\n").length > 1500 || r.split("\n").length > 1500;
 
     if (showDiff && l.length && r.length && !isLarge) {
       const changes = await calucateDiffWithWorker(l, r);
@@ -108,7 +100,7 @@ onMounted(() => {
 <template>
   <div class="grid grid-cols-[1fr_min-content_1fr] h-full overflow-auto">
     <textarea ref="fromEl" v-text="from" />
-    <div class="border-main border-r" v-show="from === to" />
+    <div class="border-main border-r" />
     <textarea ref="toEl" v-text="to" />
   </div>
 </template>
