@@ -37,7 +37,7 @@ onMounted(() => {
     </button>
     <a
       class="icon-btn text-lg"
-      href="https://github.com/antfu/vite-plugin-inspect"
+      href="https://github.com/speedy-js/devtool-ui"
       target="_blank"
     >
       <LogoGithub />

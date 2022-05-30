@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import { Ref, computed, watch } from "vue";
+import { ref, Ref, computed, watch, nextTick } from "vue";
 import { useRouteQuery } from "@vueuse/router";
 import { msToTime } from "../logic/utils";
-import { onRefetch, enableDiff, lineWrapping } from "../logic";
+import { onRefetch, enableDiff, lineWrapping, openDiffByCode } from "../logic";
 import NavBar from "../components/navbar.vue";
 import Container from "../components/container.vue";
 import Badge from "../components/badge.vue";
@@ -12,6 +12,7 @@ import DiffEditor from "../components/diff-editor.vue";
 import CarbonArrowLeft from "~icons/carbon/arrow-left";
 import CarbonCompare from "~icons/carbon/compare";
 import CarbonTextWrap from "~icons/carbon/text-wrap";
+import CarbonScript from "~icons/carbon/script";
 import ModuleId from "../components/module-id.vue";
 import PluginName from "../components/plugin-name.vue";
 const route = useRoute();
@@ -57,6 +58,11 @@ const from = computed(
 const to = computed(
   () => data.value?.transforms[currentIndex.value]?.result || ""
 );
+// let currentIndex = 0;
+const openDiff = (idx: number) => {
+  // index.value = idx.toString();
+  openDiffByCode(id.value, currentIndex.value - 1, currentIndex.value);
+};
 </script>
 
 <template>
@@ -79,6 +85,9 @@ const to = computed(
       @click="enableDiff = !enableDiff"
     >
       <CarbonCompare :class="enableDiff ? 'opacity-100' : 'opacity-25'" />
+    </button>
+    <button class="icon-btn text-lg" title="vscode" @click="openDiff">
+      <CarbonScript :class="from.length && to.length && from!==to ? 'opacity-100' : 'opacity-25'" />
     </button>
   </NavBar>
   <Container

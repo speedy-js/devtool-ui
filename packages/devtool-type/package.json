@@ -1,6 +1,6 @@
 {
   "name": "@speedy-js/devtool-type",
-  "version": "1.0.6",
+  "version": "1.0.7",
   "description": "devtool ui for speedy",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",

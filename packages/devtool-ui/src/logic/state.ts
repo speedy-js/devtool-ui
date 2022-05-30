@@ -34,3 +34,10 @@ export function refetchPluginMetics() {
   // onRefetch.trigger();
   // return pluginMetics.execute();
 }
+
+export const openDiffByCode = (id: string, from: number, to: number) => {
+  const url = `/__inspect_api/diff-code?id=${encodeURIComponent(
+    id
+  )}&from=${from}&to=${to}`;
+  fetch(url);
+};

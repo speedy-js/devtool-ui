@@ -3,6 +3,7 @@ export interface TransformInfo {
   result: string;
   start: number;
   end: number;
+  hook: string;
 }
 
 export interface ModuleInfo {

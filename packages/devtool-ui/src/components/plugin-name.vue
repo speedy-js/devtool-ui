@@ -13,10 +13,12 @@ const starts = [
   'rollup-plugin-',
   'rollup-',
   'unplugin-',
-  "speedy:",
   "speedy-plugin-",
-  "pia:",
   "pia-plugin-",
+  "pia:",
+  "pia-",
+  "speedy-",
+  "speedy:",
 ]
 
 const parts = computed(() => {

@@ -8,13 +8,25 @@ import path from "path";
 import { ModuleInfo, TransformInfo } from "@speedy-js/devtool-type";
 //@ts-ignore
 import detect from "detect-port";
+import child_process from "child_process";
+import os from "os";
+import fs from "fs";
 
+const random = () => {
+  return Math.random().toString(36).slice(2);
+};
+
+const ext = (s: string) => {
+  return s.split("?")[0].split(".").at(-1);
+};
+
+const OriginName = "Origin";
 export interface ISpeedyDevtoolConfig {
   // weather to enable devtool
   // default to false
   enable: boolean;
   // default to false
-  open: boolean;
+  // open: boolean;
   // default to 4899 -> findport will auto detach one when confict
   port: number;
 }
@@ -53,7 +65,7 @@ function resolveModuleGraphToAbsolutePath(
 }
 
 let serveStart = false;
-const dummyLoadPluginName = "speedy-devtool";
+const dummyLoadPluginName = "speedy:devtool";
 
 export function SpeedyDevtoolPlugin(
   config: ISpeedyDevtoolConfig | boolean | undefined
@@ -93,28 +105,14 @@ export function SpeedyDevtoolPlugin(
       let idMap: Record<string, string> = {};
       let moduleGraph: Metafile | undefined;
       let pluginSet = new Set<string>();
-      function clear() {
-        console.log("clear", new Error().stack);
-        transformMap = {};
-        idMap = {};
-        moduleGraph = { inputs: {}, outputs: {} };
-      }
 
       function resolveId(id = ""): string {
-        // console.log('id',id)
-        // if (id.startsWith("./"))
-        //   id = path.resolve(bundler.config.root, id).replace(/\\/g, "/");
         return resolveIdRec(id);
       }
 
       function resolveIdRec(id: string): string {
         return idMap[id] ? resolveIdRec(idMap[id]) : id;
       }
-
-      // bundler.hooks.startCompilation.tapPromise(
-      //   "speedy-devtool",
-      //   async () => {}
-      // );
 
       const hookList = [
         "initialize",
@@ -130,7 +128,7 @@ export function SpeedyDevtoolPlugin(
 
       let prevConfig = JSON.stringify(bundler.config, null, 2);
       putInfoTransformMap("speedy:config", {
-        name: "raw",
+        name: OriginName,
         result: prevConfig,
         start: 0,
         end: 0,
@@ -156,8 +154,6 @@ export function SpeedyDevtoolPlugin(
                 const newConfig = JSON.stringify(bundler.config, null, 2);
 
                 const end = Date.now();
-                // @ts-ignore
-                // const input = arg?.content ?? arg?.code ?? arg?.path ?? "" ;
                 if (_result?.path && id && _result?.path !== id) {
                   // idMap[_result.path] = id;
                   idMap[id] = _result.path;
@@ -169,7 +165,31 @@ export function SpeedyDevtoolPlugin(
                   _result?.path ??
                   ""
                 ).toString();
+
+                if (newConfig !== oldConfig && newConfig !== prevConfig) {
+                  prevConfig = newConfig;
+                  putInfoTransformMap("speedy:config", {
+                    name: name,
+                    result: prevConfig,
+                    start,
+                    end,
+                    hook,
+                  });
+                }
+
                 if (_result && id) {
+                  if (!transformMap[id]) {
+                    // @ts-ignore
+                    const input = arg?.content ?? arg?.code ?? arg?.path ?? "";
+                    putInfoTransformMap(id, {
+                      name: OriginName,
+                      result: input,
+                      start,
+                      end,
+                      hook,
+                    });
+                  }
+
                   putInfoTransformMap(id, {
                     name: name,
                     result,
@@ -177,16 +197,6 @@ export function SpeedyDevtoolPlugin(
                     end,
                     hook,
                   });
-                  if (newConfig !== oldConfig && newConfig !== prevConfig) {
-                    prevConfig = newConfig;
-                    putInfoTransformMap("speedy:config", {
-                      name: name,
-                      result: prevConfig,
-                      start,
-                      end,
-                      hook,
-                    });
-                  }
                 }
 
                 return _result;
@@ -194,8 +204,8 @@ export function SpeedyDevtoolPlugin(
             } else if (args.type === "promise") {
               args.fn = async (...args: Parameters<F>) => {
                 // const id = args[0]?.path?.split("?")?.[0];
-                const id = args[0]?.path;
-
+                const arg = args[0];
+                const id = arg?.path;
                 const start = Date.now();
                 const oldConfig = JSON.stringify(bundler.config, null, 2);
                 const _result = await oldfn.apply(bundler, args);
@@ -206,14 +216,37 @@ export function SpeedyDevtoolPlugin(
                   // idMap[ _result.path] = id
                   idMap[id] = _result.path;
                 }
-                //@ts-ignore
                 const result = (
                   _result?.contents ??
                   _result?.code ??
                   _result?.path ??
                   ""
                 ).toString();
+
+                if (newConfig !== oldConfig && newConfig !== prevConfig) {
+                  prevConfig = newConfig;
+                  putInfoTransformMap("speedy:config", {
+                    name: name,
+                    result: prevConfig,
+                    start,
+                    end,
+                    hook,
+                  });
+                }
+
                 if (_result && id) {
+                  if (!transformMap[id]) {
+                    //@ts-ignore
+                    const input = arg?.content ?? arg?.code ?? arg?.path ?? "";
+                    putInfoTransformMap(id, {
+                      name: OriginName,
+                      result: input,
+                      start,
+                      end,
+                      hook,
+                    });
+                  }
+
                   putInfoTransformMap(id, {
                     name: name,
                     result,
@@ -221,16 +254,6 @@ export function SpeedyDevtoolPlugin(
                     end,
                     hook,
                   });
-                  if (newConfig !== oldConfig && newConfig !== prevConfig) {
-                    prevConfig = newConfig;
-                    putInfoTransformMap("speedy:config", {
-                      name: name,
-                      result: prevConfig,
-                      start,
-                      end,
-                      hook,
-                    });
-                  }
                 }
                 return _result;
               };
@@ -239,25 +262,6 @@ export function SpeedyDevtoolPlugin(
           },
         });
       }
-
-      // bundler.hooks.resolve.intercept({
-      //   register(args) {
-      //     pluginSet.add(args.name);
-      //     const oldfn = args.fn;
-      //     type F = Parameters<typeof bundler.hooks.resolve.tap>[1];
-      //     args.fn = async (...args: Parameters<F>) => {
-      //       const resolve = args[0];
-
-      //       const _result = await oldfn.apply(bundler, args);
-      //       if (_result) {
-      //         idMap[resolve.path] = _result.path;
-      //       }
-
-      //       return _result;
-      //     };
-      //     return args;
-      //   },
-      // });
 
       bundler.hooks.processManifest.tapPromise(
         dummyLoadPluginName,
@@ -296,11 +300,10 @@ export function SpeedyDevtoolPlugin(
         });
 
         const metrics = Object.values(map)
-          .filter(Boolean)
+          .filter((i) => !!i && i.name !== OriginName)
           .sort((a, b) => a.name.localeCompare(b.name))
           .sort((a, b) => b.invokeCount - a.invokeCount)
           .sort((a, b) => b.totalTime - a.totalTime);
-        // console.log("metrics", metrics);
         return metrics;
       }
 
@@ -362,6 +365,22 @@ export function SpeedyDevtoolPlugin(
             } else if (pathname === "/pluginMetics") {
               const data = getPluginMetics();
               context.body = { data };
+            } else if (pathname === "/diff-code") {
+              const { id, from, to } = context.query as Record<string, string>;
+              const list =
+                transformMap[id] || transformMap[resolveId(id)] || [];
+              const fromCode = list[+from]?.result ?? "";
+              const toCode = list[+to]?.result ?? "";
+              if (fromCode && toCode && fromCode !== toCode) {
+                const tempDir = os.tmpdir();
+                const fromPath = path.join(tempDir, random() + "." + ext(id));
+                const toPath = path.join(tempDir, random() + "." + ext(id));
+                fs.writeFileSync(fromPath, fromCode, "utf-8");
+                fs.writeFileSync(toPath, toCode, "utf-8");
+                const cmd = `code -d ${fromPath} ${toPath}`;
+                child_process.exec(cmd);
+              }
+              context.body = {};
             } else {
               next();
             }
