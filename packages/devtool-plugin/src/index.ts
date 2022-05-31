@@ -35,7 +35,10 @@ const VirtualPathProxyNameSpace = "VirtualPathProxyNamespace";
 function resolveModuleGraphToAbsolutePath(
   root: string,
   metaFile: Metafile
-): Metafile {
+): Metafile & {
+  inputGraph: Record<string, Set<string>>;
+  depGraph: Record<string, Set<string>>;
+} {
   const inputs = metaFile.inputs;
   /**
    * Resolve Cache for relativePath -> absolutePath
@@ -49,7 +52,6 @@ function resolveModuleGraphToAbsolutePath(
 
     return cache[relativePath];
   }
-
   const inputRes: typeof inputs = {};
 
   for (const key of Object.keys(inputs)) {
@@ -61,7 +63,21 @@ function resolveModuleGraphToAbsolutePath(
     };
   }
 
-  return { inputs: inputRes, outputs: metaFile.outputs };
+  const inputGraph: Record<string, Set<string>> = {};
+  const depGraph: Record<string, Set<string>> = {};
+
+  for (const key of Object.keys(inputRes)) {
+    const inputSet = inputGraph[key] ?? new Set();
+    for (const i of inputRes[key].imports) {
+      const depSet = depGraph[i.path] ?? new Set();
+      depSet.add(key);
+      inputSet.add(i.path);
+      depGraph[i.path] = depSet
+    }
+    inputGraph[key] = inputSet
+  }
+
+  return { inputs: inputRes, inputGraph, depGraph, outputs: metaFile.outputs };
 }
 
 let serveStart = false;
@@ -103,7 +119,12 @@ export function SpeedyDevtoolPlugin(
       }
 
       let idMap: Record<string, string> = {};
-      let moduleGraph: Metafile | undefined;
+      let moduleGraph:
+        | (Metafile & {
+            inputGraph: Record<string, Set<string>>;
+            depGraph: Record<string, Set<string>>;
+          })
+        | undefined;
       let pluginSet = new Set<string>();
 
       function resolveId(id = ""): string {
@@ -325,13 +346,18 @@ export function SpeedyDevtoolPlugin(
                   );
                   const input = moduleGraph?.inputs[id];
                   let deps: string[] = [];
+                  let importee: string[] = [];
                   if (module) {
-                    deps = (input?.imports || [])
-                      .filter(Boolean)
-                      .map(($) => $.path);
+                    deps = [
+                      ...(moduleGraph?.depGraph[resolveId(id)] ?? []),
+                    ].filter(Boolean);
+                    importee = [
+                      ...(moduleGraph?.inputGraph[resolveId(id)] ?? []),
+                    ].filter(Boolean);
                   }
                   return {
                     deps,
+                    importee,
                     id: resolveId(id),
                     plugins,
                     virtual: false,

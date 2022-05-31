@@ -6,7 +6,7 @@ import { useRouter } from "vue-router";
 import { computed, onMounted, ref, watch } from "vue";
 
 import type { ModuleInfo } from "@speedy-js/devtool-type";
-import { isDark } from "../logic";
+import { isDark, list, graphMode, searchText } from "../logic";
 
 const props = defineProps<{
   modules?: ModuleInfo[];
@@ -15,11 +15,27 @@ console.log("props", props.modules);
 
 const container = ref<HTMLDivElement | null>();
 const router = useRouter();
-
 const data = computed<Data>(() => {
   const modules = props.modules || [];
+  const edges: Data["edges"] = modules.flatMap((mod) => {
+    const arr = graphMode.value ? mod.deps : mod.importee;
+    return arr.map((dep) => ({
+      from: !graphMode.value ? dep : mod.id,
+      to: !graphMode.value ? mod.id : dep,
+      arrows: {
+        to: {
+          enabled: true,
+          scaleFactor: 0.8,
+        },
+      },
+    }));
+  });
+  const edgesNodes = edges.flatMap((i) => [i.from, i.to]);
   const s = new Set();
-  const nodes: Data["nodes"] = modules
+  const nodes: Data["nodes"] = (
+    (searchText.value ? list.data?.modules : modules) ?? []
+  )
+    .filter((i) => edgesNodes.includes(i.id))
     .map((mod) => {
       const path = mod.id.replace(/\?.*$/, "").replace(/\#.*$/, "");
       return {
@@ -43,23 +59,11 @@ const data = computed<Data>(() => {
       return true;
     });
 
-  const edges: Data["edges"] = modules.flatMap((mod) =>
-    mod.deps.map((dep) => ({
-      from: mod.id,
-      to: dep,
-      arrows: {
-        to: {
-          enabled: true,
-          scaleFactor: 0.8,
-        },
-      },
-    }))
-  );
-
-  return {
+  const data = {
     nodes,
     edges,
   };
+  return data;
 });
 
 onMounted(() => {
@@ -67,6 +71,9 @@ onMounted(() => {
     nodes: {
       shape: "dot",
       size: 16,
+    },
+    layout: {
+      improvedLayout: false,
     },
     physics: {
       enabled: (data.value?.nodes?.length ?? 0) < 500,

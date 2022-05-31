@@ -22,10 +22,10 @@ export const searchResults = computed(() => {
 
   const fuse = new Fuse(data, {
     shouldSort: true,
-    keys: ["id", "plugins"],
+    keys: ["id","plugin"],
     ignoreLocation: true,
     includeScore: true,
-    minMatchCharLength: searchText.value.length,
+    minMatchCharLength: searchText.value.length * 0.8,
   });
 
   const r = fuse.search(searchText.value).sort((a, b) => a.score! - b.score!);

@@ -41,3 +41,5 @@ export const openDiffByCode = (id: string, from: number, to: number) => {
   )}&from=${from}&to=${to}`;
   fetch(url);
 };
+
+export const graphMode = useStorage("vite-inspect-graph-model", false);
