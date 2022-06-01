@@ -9,7 +9,8 @@ export interface TransformInfo {
 export interface ModuleInfo {
   id: string;
   plugins: string[];
-  deps: string[];
+  imports: string[];
+  exports: string[];
   virtual: boolean;
 }
 

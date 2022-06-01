@@ -11,17 +11,16 @@ import { isDark, list, graphMode, searchText } from "../logic";
 const props = defineProps<{
   modules?: ModuleInfo[];
 }>();
-console.log("props", props.modules);
 
 const container = ref<HTMLDivElement | null>();
 const router = useRouter();
 const data = computed<Data>(() => {
   const modules = props.modules || [];
   const edges: Data["edges"] = modules.flatMap((mod) => {
-    const arr = graphMode.value ? mod.deps : mod.importee;
-    return arr.map((dep) => ({
-      from: !graphMode.value ? dep : mod.id,
-      to: !graphMode.value ? mod.id : dep,
+    const arr = graphMode.value ? mod.imports : mod.exports;
+    return arr.map((item: any) => ({
+      from: graphMode.value ? item : mod.id,
+      to: graphMode.value ? mod.id : item,
       arrows: {
         to: {
           enabled: true,
@@ -42,7 +41,12 @@ const data = computed<Data>(() => {
         id: mod.id,
         label: path.split("/").splice(-1)[0],
         group: path.split("/").slice(0, -1).join("/"),
-        size: 15 + Math.min(mod.deps.length / 2, 8),
+        size:
+          15 +
+          Math.min(
+            (graphMode.value ? mod.imports.length : mod.exports.length) / 2,
+            8
+          ),
         font: { color: isDark.value ? "white" : "black" },
         shape: mod.id.includes("/node_modules/")
           ? "hexagon"

@@ -30,15 +30,15 @@ export interface ISpeedyDevtoolConfig {
   // default to 4899 -> findport will auto detach one when confict
   port: number;
 }
-
+interface EnhanceMetaFile extends Metafile {
+  inputGraph: Record<string, Set<string>>;
+  depGraph: Record<string, Set<string>>;
+}
 const VirtualPathProxyNameSpace = "VirtualPathProxyNamespace";
 function resolveModuleGraphToAbsolutePath(
   root: string,
   metaFile: Metafile
-): Metafile & {
-  inputGraph: Record<string, Set<string>>;
-  depGraph: Record<string, Set<string>>;
-} {
+): EnhanceMetaFile {
   const inputs = metaFile.inputs;
   /**
    * Resolve Cache for relativePath -> absolutePath
@@ -72,9 +72,9 @@ function resolveModuleGraphToAbsolutePath(
       const depSet = depGraph[i.path] ?? new Set();
       depSet.add(key);
       inputSet.add(i.path);
-      depGraph[i.path] = depSet
+      depGraph[i.path] = depSet;
     }
-    inputGraph[key] = inputSet
+    inputGraph[key] = inputSet;
   }
 
   return { inputs: inputRes, inputGraph, depGraph, outputs: metaFile.outputs };
@@ -84,7 +84,7 @@ let serveStart = false;
 const dummyLoadPluginName = "speedy:devtool";
 
 export function SpeedyDevtoolPlugin(
-  config: ISpeedyDevtoolConfig | boolean | undefined
+  config?: Partial<ISpeedyDevtoolConfig>
 ): SpeedyPlugin {
   return {
     name: dummyLoadPluginName,
@@ -101,6 +101,8 @@ export function SpeedyDevtoolPlugin(
       if (typeof config === "object" && !config.enable) {
         return;
       }
+
+      const { port = 4399 } = config;
       /**
        * transformMap save transformStack
        */
@@ -137,14 +139,19 @@ export function SpeedyDevtoolPlugin(
 
       const hookList = [
         "initialize",
-        "resolve",
-        "load",
         "environment",
         "compilation",
+        "resolve",
+        "load",
         "transform",
-        "transformHTML",
+        "processAsset",
         "startCompilation",
         "endCompilation",
+        "processAssets",
+        "processManifest",
+        "beforeEmit",
+        "transformHTML",
+        "done",
       ] as const;
 
       let prevConfig = JSON.stringify(bundler.config, null, 2);
@@ -344,20 +351,19 @@ export function SpeedyDevtoolPlugin(
                   const plugins = transformMap[resolveId(id)]?.map(
                     (i) => i.name
                   );
-                  const input = moduleGraph?.inputs[id];
-                  let deps: string[] = [];
-                  let importee: string[] = [];
+                  let imports: string[] = [];
+                  let exports: string[] = [];
                   if (module) {
-                    deps = [
+                    imports = [
                       ...(moduleGraph?.depGraph[resolveId(id)] ?? []),
                     ].filter(Boolean);
-                    importee = [
+                    exports = [
                       ...(moduleGraph?.inputGraph[resolveId(id)] ?? []),
                     ].filter(Boolean);
                   }
                   return {
-                    deps,
-                    importee,
+                    imports,
+                    exports,
                     id: resolveId(id),
                     plugins,
                     virtual: false,
@@ -412,7 +418,7 @@ export function SpeedyDevtoolPlugin(
             }
           })
         );
-        detect((<any>config).port ?? 4399).then((p: number) => {
+        detect(port).then((p: number) => {
           app.listen(p, () => {
             console.log(`inspect url: http://localhost:${p}/__inspect`);
           });
