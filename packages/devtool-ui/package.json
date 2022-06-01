@@ -1,6 +1,6 @@
 {
   "name": "@speedy-js/devtool-ui",
-  "version": "1.0.8",
+  "version": "1.0.9",
   "description": "devtool ui for speedy",
   "main": "./index.js",
   "types": "./index.d.ts",
@@ -26,7 +26,7 @@
     "@types/diff-match-patch": "^1.0.32",
     "diff-match-patch": "^1.0.5",
     "@iconify/json": "2.1.43",
-    "@speedy-js/devtool-plugin": "1.0.9",
+    "@speedy-js/devtool-plugin": "1.0.10",
     "@speedy-js/devtool-type": "1.0.8",
     "@speedy-js/speedy-core": "0.11.2",
     "@speedy-js/unplugin": "0.8.1",

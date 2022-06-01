@@ -6,7 +6,14 @@ import { useRouter } from "vue-router";
 import { computed, onMounted, ref, watch } from "vue";
 
 import type { ModuleInfo } from "@speedy-js/devtool-type";
-import { isDark, list, graphMode, searchText } from "../logic";
+import {
+  isDark,
+  list,
+  graphMode,
+  searchText,
+  includeNodeModules,
+  includeVirtual,
+} from "../logic";
 
 const props = defineProps<{
   modules?: ModuleInfo[];
@@ -18,16 +25,28 @@ const data = computed<Data>(() => {
   const modules = props.modules || [];
   const edges: Data["edges"] = modules.flatMap((mod) => {
     const arr = graphMode.value ? mod.imports : mod.exports;
-    return arr.map((item: any) => ({
-      from: graphMode.value ? item : mod.id,
-      to: graphMode.value ? mod.id : item,
-      arrows: {
-        to: {
-          enabled: true,
-          scaleFactor: 0.8,
+    return arr
+      .filter((item) => {
+        if (
+          !includeNodeModules.value &&
+          (item.includes("node_modules") || mod.id.includes("node_modules"))
+        )
+          return false;
+        if (!includeVirtual.value && mod.virtual) {
+          return false;
+        }
+        return true;
+      })
+      .map((item: any) => ({
+        from: graphMode.value ? item : mod.id,
+        to: graphMode.value ? mod.id : item,
+        arrows: {
+          to: {
+            enabled: true,
+            scaleFactor: 0.8,
+          },
         },
-      },
-    }));
+      }));
   });
   const edgesNodes = edges.flatMap((i) => [i.from, i.to]);
   const s = new Set();
