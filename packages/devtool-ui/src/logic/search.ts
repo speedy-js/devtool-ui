@@ -1,7 +1,7 @@
 import { useStorage } from "@vueuse/core";
 import { computed } from "vue";
 import Fuse from "fuse.js";
-import { list } from "./state";
+import { list, listMode } from "./state";
 
 export const searchText = useStorage("vite-inspect-search-text", "");
 export const includeNodeModules = useStorage(
@@ -20,9 +20,15 @@ export const searchResults = computed(() => {
 
   if (!searchText.value) return data;
 
+
+  // graph mode use filter avoid too much noise
+  if (listMode.value === "graph") {
+    return data.filter((i) => i.id.includes(searchText.value));
+  }
+
   const fuse = new Fuse(data, {
     shouldSort: true,
-    keys: ["id","plugin"],
+    keys: ["id", "plugin"],
     ignoreLocation: true,
     includeScore: true,
     minMatchCharLength: searchText.value.length * 0.8,
