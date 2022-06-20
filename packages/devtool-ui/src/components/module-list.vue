@@ -1,21 +1,24 @@
 <script setup lang="ts">
-import { listMode, searchText } from "../logic";
+import { listMode, searchText } from '../logic'
 import { RouterLink } from "vue-router";
 import ModuleId from "./module-id.vue";
-
+import PluginName from './plugin-name.vue'
 defineProps<{
-  modules: any[];
-}>();
+  modules: Array<{
+    id: string
+    plugins: any[]
+  }>
+}>()
 </script>
 
 <template>
   <div v-if="modules">
-    <div v-if="!modules.length" class="px-6 py-4 opacity-50 italic text-center">
-      <div v-if="searchText">No search result</div>
+    <div v-if="!modules.length" class="px-6 py-4 opacity-50 italic">
+      <div v-if="searchText">
+        No search result
+      </div>
       <div v-else>
-        No module recorded yet, vist
-        <a href="/" target="_blank">your app</a> first and then refresh this
-        page.
+        No module recorded yet, visit <a href="/" target="_blank">your app</a> first and then refresh this page.
       </div>
     </div>
     <RouterLink
@@ -25,10 +28,12 @@ defineProps<{
       :to="`/module?id=${encodeURIComponent(m.id)}`"
     >
       <ModuleId :id="m.id" />
-      <div v-if="listMode === 'detailed'" class="text-xs">
-        <template v-for="(i, idx) in m.plugins.slice(1)" :key="i">
-          <span v-if="idx !== 0">|</span>
-          <span class="mx-0.5 text-gray-400">{{ i }}</span>
+      <div v-if="listMode === 'detailed'" class="text-xs opacity-50">
+        <template v-for="i, idx in new Set(m.plugins.slice(1))" :key="i">
+          <span v-if="idx !== 0" class="opacity-20">|</span>
+          <span class="mx-0.5">
+            <PluginName :name="i" :hide="true" />
+          </span>
         </template>
       </div>
     </RouterLink>

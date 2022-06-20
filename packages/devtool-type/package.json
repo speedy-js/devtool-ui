@@ -1,10 +1,12 @@
 {
   "name": "@speedy-js/devtool-type",
-  "version": "1.0.0",
+  "version": "1.0.8",
   "description": "devtool ui for speedy",
-  "main": "index.js",
-  "types": "index.ts",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
   "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -19,6 +21,9 @@
   "license": "ISC",
   "bugs": {
     "url": "https://github.com/speedy-js/devtool-ui/issues"
+  },
+  "devDependencies": {
+    "typescript":"^4.6.4"
   },
   "homepage": "https://github.com/speedy-js/devtool-ui#readme"
 }

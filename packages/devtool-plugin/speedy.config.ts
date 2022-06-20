@@ -6,6 +6,7 @@ export default defineConfig({
   output: {
     path: "dist",
     filename: "index",
+    format:"cjs",
   },
   input: {
     index: "src/index.ts",

@@ -4,8 +4,8 @@
 
 ## RoadMap
 
-- [] remove local referance
-- [] complete monaco editor speedy plugin
-- [] search
-- [] ci & cd
-- [] document
+- [x] remove local reference
+- [x] complete monaco editor speedy plugin
+- [x] search
+- [ ] ci & cd
+- [x] document

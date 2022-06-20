@@ -1,6 +1,5 @@
 {
   "compilerOptions": {
-    "baseUrl": "./",
     "target": "ES6",
     "module": "CommonJS",
     "lib": ["ESNext", "DOM", "es2020"],
@@ -9,16 +8,11 @@
     "noEmitOnError": false,
     "forceConsistentCasingInFileNames": true,
     "strict": true,
-    "outDir": "lib",
+    "outDir": "dist",
     "skipLibCheck": true,
     "moduleResolution": "node",
     "resolveJsonModule": true,
-    "typeRoots": [
-      "./node_modules/@types",
-      "./../../node_modules/@types",
-      "./@types",
-      "global.d.ts"
-    ]
+    "declaration": true
   },
-  "include": ["src", "@types", "global.d.ts"]
+  "include": ["src"]
 }

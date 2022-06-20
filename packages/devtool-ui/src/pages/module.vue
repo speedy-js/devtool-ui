@@ -1,17 +1,22 @@
 <script setup lang="ts">
-import { Ref, computed, watch } from "vue";
+import { ref, Ref, computed, watch, nextTick } from "vue";
 import { useRouteQuery } from "@vueuse/router";
 import { msToTime } from "../logic/utils";
-import { onRefetch } from "../logic";
+import { onRefetch, enableDiff, lineWrapping, openDiffByCode } from "../logic";
 import NavBar from "../components/navbar.vue";
 import Container from "../components/container.vue";
 import Badge from "../components/badge.vue";
 import { useRoute } from "vue-router";
 import { useFetch } from "@vueuse/core";
 import DiffEditor from "../components/diff-editor.vue";
+import CarbonArrowLeft from "~icons/carbon/arrow-left";
+import CarbonCompare from "~icons/carbon/compare";
+import CarbonTextWrap from "~icons/carbon/text-wrap";
+import CarbonScript from "~icons/carbon/script";
+import ModuleId from "../components/module-id.vue";
+import PluginName from "../components/plugin-name.vue";
 const route = useRoute();
 const id = computed(() => route?.query.id as string);
-
 const { data, execute } = useFetch(
   computed(() => `/__inspect_api/module?id=${encodeURIComponent(id.value)}`),
   { immediate: false }
@@ -29,7 +34,7 @@ const currentIndex = computed(
 
 async function refetch() {
   const { id: resolved } = await fetch(
-    `/__inspect_api/resolve?id=${id.value}`
+    `/__inspect_api/resolve?id=${encodeURIComponent(id.value)}`
   ).then((r) => r.json());
   // if (resolved) {
   //   // // revaluate the module (if it's not initialized by the module graph)
@@ -53,13 +58,41 @@ const from = computed(
 const to = computed(
   () => data.value?.transforms[currentIndex.value]?.result || ""
 );
+// let currentIndex = 0;
+const openDiff = (idx: number) => {
+  // index.value = idx.toString();
+  openDiffByCode(id.value, currentIndex.value - 1, currentIndex.value);
+};
 </script>
 
 <template>
-  <NavBar :id="id" />
+  <NavBar>
+    <router-link class="icon-btn !outline-none my-auto" to="/">
+      <CarbonArrowLeft />
+    </router-link>
+    <ModuleId v-if="id" :id="id" />
+    <div class="flex-auto" />
+    <button
+      class="icon-btn text-lg"
+      title="Line Wrapping"
+      @click="lineWrapping = !lineWrapping"
+    >
+      <CarbonTextWrap :class="lineWrapping ? 'opacity-100' : 'opacity-25'" />
+    </button>
+    <button
+      class="icon-btn text-lg"
+      title="Toggle Diff"
+      @click="enableDiff = !enableDiff"
+    >
+      <CarbonCompare :class="enableDiff ? 'opacity-100' : 'opacity-25'" />
+    </button>
+    <button class="icon-btn text-lg" title="vscode" @click="openDiff">
+      <CarbonScript :class="from.length && to.length && from!==to ? 'opacity-100' : 'opacity-25'" />
+    </button>
+  </NavBar>
   <Container
     v-if="data && data.transforms"
-    class="grid grid-cols-[300px,3fr] overflow-hidden"
+    class="grid grid-cols-[500px_3fr] overflow-hidden"
   >
     <div class="flex flex-col border-r border-main overflow-auto">
       <div
@@ -73,15 +106,15 @@ const to = computed(
           :class="currentIndex === idx ? 'bg-main bg-opacity-10' : ''"
           @click="index = idx.toString()"
         >
-          <span :class="currentIndex === idx ? 'font-bold' : ''">{{
-            tr.name
-          }}</span>
+          <span :class="currentIndex === idx ? 'font-bold' : ''">
+            <PluginName :name="tr.name" />
+          </span>
           <span class="ml-2 text-xs opacity-50">{{
             msToTime(tr.end - tr.start)
           }}</span>
           <Badge
             v-if="tr.result === data.transforms[idx - 1]?.result"
-            class="bg-orange-400/10 text-orange-400"
+            class="bg-gray-400/10 text-gray-400"
             v-text="'no change'"
           />
           <Badge
@@ -89,9 +122,18 @@ const to = computed(
             class="bg-light-blue-400/10 text-light-blue-400"
             v-text="'load'"
           />
+          <Badge
+            v-if="tr.hook"
+            :class="
+              tr.result === data.transforms[idx - 1]?.result
+                ? 'bg-gray-400/10 text-gray-400'
+                : 'bg-orange-400/10 text-orange-400'
+            "
+            v-text="tr.hook"
+          />
         </button>
       </template>
     </div>
-    <DiffEditor :from="from" :to="to" />
+    <DiffEditor :from="from.toString()" :to="to.toString()" />
   </Container>
 </template>

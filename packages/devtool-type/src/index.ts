@@ -3,12 +3,14 @@ export interface TransformInfo {
   result: string;
   start: number;
   end: number;
+  hook: string;
 }
 
 export interface ModuleInfo {
   id: string;
   plugins: string[];
-  deps: string[];
+  imports: string[];
+  exports: string[];
   virtual: boolean;
 }
 

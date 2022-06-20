@@ -4,7 +4,9 @@ import vuePlugin from "rollup-plugin-vue";
 import WindiCSS from "rollup-plugin-windicss";
 import Icon from "unplugin-icons/rollup";
 import path from "path";
-import { SpeedyDevtoolPlugin } from "/Users/zoolsher/Projects/devtool-ui/packages/devtool-server/dist/index.js";
+import { SpeedyDevtoolPlugin } from "@speedy-js/devtool-plugin";
+import ElementPlus from 'unplugin-element-plus/rollup'
+
 const windi = WindiCSS({
   scan: {
     dirs: [path.resolve(__dirname, "src")],
@@ -13,6 +15,7 @@ const windi = WindiCSS({
 export default defineConfig({
   output: {
     path: "dist",
+    publicPath: "/__inspect/",
     filename: "index",
   },
   define: {
@@ -26,7 +29,8 @@ export default defineConfig({
     unplugin(vuePlugin()),
     ...windi.map(unplugin),
     unplugin(Icon()),
-    SpeedyDevtoolPlugin(true),
+    SpeedyDevtoolPlugin( process.env.NODE_ENV !== 'production'),
+    unplugin(ElementPlus()),
   ],
   html: { title: "speedy devtool" },
 });
