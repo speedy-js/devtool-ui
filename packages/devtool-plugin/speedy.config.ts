@@ -11,9 +11,6 @@ export default defineConfig({
   input: {
     index: "src/index.ts",
   },
-  define: {
-    // navigator: JSON.stringify(undefined),
-  },
   external: ["@speedy-js/devtool-ui"],
   target: "es6",
   minify: false,
